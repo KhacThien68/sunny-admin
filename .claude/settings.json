@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Read(//c/Users/thiennk/Downloads/**)",
-      "Bash(npx skills *)"
+      "Bash(npx skills *)",
+      "Bash(npx @nestjs/cli@10 new backend --package-manager npm --skip-git)",
+      "Bash(npm test *)",
+      "Bash(npm run *)",
+      "Bash(git add *)"
     ]
   }
 }
