@@ -8,7 +8,9 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { typeOrmConfigFactory } from './config/typeorm.config';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { PermissionGuard } from './common/guards/permission.guard';
 import { UsersModule } from './users/users.module';
+import { PermissionsModule } from './permissions/permissions.module';
 
 @Module({
   imports: [
@@ -20,6 +22,7 @@ import { UsersModule } from './users/users.module';
     JwtModule.register({ global: true }),
     UsersModule,
     AuthModule,
+    PermissionsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -27,6 +30,10 @@ import { UsersModule } from './users/users.module';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionGuard,
     },
   ],
 })
