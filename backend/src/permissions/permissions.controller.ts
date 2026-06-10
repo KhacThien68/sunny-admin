@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  ParseArrayPipe,
   ParseIntPipe,
   Put,
   Request,
@@ -58,7 +59,8 @@ export class PermissionsController {
   @RequirePermission(ScreenKey.PERMISSIONS, 'update')
   replaceForUser(
     @Param('userId', ParseIntPipe) userId: number,
-    @Body() body: PermissionEntryDto[],
+    @Body(new ParseArrayPipe({ items: PermissionEntryDto, whitelist: true }))
+    body: PermissionEntryDto[],
   ) {
     return this.permissionsService.replaceForUser(userId, body);
   }
