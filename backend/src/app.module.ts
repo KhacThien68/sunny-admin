@@ -17,7 +17,7 @@ import { UsersModule } from './users/users.module';
       inject: [ConfigService],
       useFactory: typeOrmConfigFactory,
     }),
-    JwtModule.register({}),
+    JwtModule.register({ global: true }),
     UsersModule,
     AuthModule,
   ],

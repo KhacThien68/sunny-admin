@@ -145,14 +145,18 @@ describe('AuthService', () => {
       await expect(service.refresh(rawToken)).rejects.toThrow(UnauthorizedException);
     });
 
-    it('should throw UnauthorizedException for revoked token', async () => {
-      tokenRepo.findOne.mockResolvedValue(null);
+    it('should throw UnauthorizedException when parallel refresh races (update returns affected: 0)', async () => {
+      tokenRepo.findOne.mockResolvedValue(storedToken);
+      usersService.findById.mockResolvedValue(activeUser as any);
+      tokenRepo.update.mockResolvedValue({ affected: 0 });
 
       await expect(service.refresh(rawToken)).rejects.toThrow(UnauthorizedException);
     });
 
-    it('should throw UnauthorizedException for expired token', async () => {
-      tokenRepo.findOne.mockResolvedValue(null);
+    it('should throw UnauthorizedException when update affected is undefined (race condition)', async () => {
+      tokenRepo.findOne.mockResolvedValue(storedToken);
+      usersService.findById.mockResolvedValue(activeUser as any);
+      tokenRepo.update.mockResolvedValue({ affected: undefined });
 
       await expect(service.refresh(rawToken)).rejects.toThrow(UnauthorizedException);
     });
@@ -167,14 +171,15 @@ describe('AuthService', () => {
     it('should rotate token: revoke old, save new, return new accessToken and refreshToken', async () => {
       tokenRepo.findOne.mockResolvedValue(storedToken);
       usersService.findById.mockResolvedValue(activeUser as any);
-      tokenRepo.update.mockResolvedValue({});
+      tokenRepo.update.mockResolvedValue({ affected: 1 });
       tokenRepo.save.mockResolvedValue({});
 
       const result = await service.refresh(rawToken);
 
-      expect(tokenRepo.update).toHaveBeenCalledWith(storedToken.id, {
-        revokedAt: expect.any(Date),
-      });
+      expect(tokenRepo.update).toHaveBeenCalledWith(
+        { id: storedToken.id, revokedAt: expect.anything() },
+        { revokedAt: expect.any(Date) },
+      );
       expect(tokenRepo.save).toHaveBeenCalled();
       expect(result).toHaveProperty('accessToken', 'signed_access_token');
       expect(result).toHaveProperty('refreshToken');
@@ -185,23 +190,21 @@ describe('AuthService', () => {
   describe('logout', () => {
     const rawToken = 'raw_logout_token';
 
-    it('should set revokedAt on the matching token', async () => {
-      const storedToken = { id: 5, userId: 1, revokedAt: null };
-      tokenRepo.findOne.mockResolvedValue(storedToken);
-      tokenRepo.update.mockResolvedValue({});
+    it('should set revokedAt on the matching token via single update call', async () => {
+      tokenRepo.update.mockResolvedValue({ affected: 1 });
 
       await service.logout(rawToken);
 
-      expect(tokenRepo.update).toHaveBeenCalledWith(storedToken.id, {
-        revokedAt: expect.any(Date),
-      });
+      expect(tokenRepo.update).toHaveBeenCalledWith(
+        { tokenHash: expect.any(String), revokedAt: expect.anything() },
+        { revokedAt: expect.any(Date) },
+      );
     });
 
     it('should not throw when token is unknown (idempotent)', async () => {
-      tokenRepo.findOne.mockResolvedValue(null);
+      tokenRepo.update.mockResolvedValue({ affected: 0 });
 
       await expect(service.logout(rawToken)).resolves.not.toThrow();
-      expect(tokenRepo.update).not.toHaveBeenCalled();
     });
   });
 });

@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { IsNull, MoreThan, Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
+import { REFRESH_TTL_MS } from './auth.constants';
 import { RefreshToken } from './refresh-token.entity';
 
 const AUTH_ERROR = 'Sai tài khoản hoặc mật khẩu';
@@ -67,17 +68,24 @@ export class AuthService {
       throw new UnauthorizedException(SESSION_ERROR);
     }
 
-    // Revoke old token (rotation)
-    await this.tokenRepo.update(stored.id, { revokedAt: new Date() });
+    // Atomic revoke: closes parallel-refresh TOCTOU
+    const res = await this.tokenRepo.update(
+      { id: stored.id, revokedAt: IsNull() },
+      { revokedAt: new Date() },
+    );
+    if (!res.affected) {
+      throw new UnauthorizedException(SESSION_ERROR);
+    }
 
     return this.issueTokens(user);
   }
 
   async logout(rawToken: string): Promise<void> {
     const tokenHash = sha256(rawToken);
-    const stored = await this.tokenRepo.findOne({ where: { tokenHash } });
-    if (!stored) return;
-    await this.tokenRepo.update(stored.id, { revokedAt: new Date() });
+    await this.tokenRepo.update(
+      { tokenHash, revokedAt: IsNull() },
+      { revokedAt: new Date() },
+    );
   }
 
   private async issueTokens(user: {
@@ -86,18 +94,22 @@ export class AuthService {
     email: string;
     isAdmin: boolean;
   }): Promise<{ accessToken: string; refreshToken: string; user: object }> {
-    const ttl = this.configService.get<string>('JWT_ACCESS_TTL') ?? '900s';
+    const ttlRaw = this.configService.get<string>('JWT_ACCESS_TTL') ?? '900s';
+    // Parse pure-digit strings to numbers; pass duration strings (e.g. '15m', '900s') as-is.
+    // Cast required because jsonwebtoken's StringValue branded type doesn't accept plain string.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const expiresIn: any = /^\d+$/.test(ttlRaw) ? parseInt(ttlRaw, 10) : ttlRaw;
     const accessToken = this.jwtService.sign(
       { sub: user.id, email: user.email, isAdmin: user.isAdmin },
       {
         secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-        expiresIn: parseInt(ttl, 10) || (ttl as any),
+        expiresIn,
       },
     );
 
     const refreshToken = crypto.randomBytes(48).toString('hex');
     const tokenHash = sha256(refreshToken);
-    const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000);
+    const expiresAt = new Date(Date.now() + REFRESH_TTL_MS);
 
     await this.tokenRepo.save({ userId: user.id, tokenHash, expiresAt, revokedAt: null });
 

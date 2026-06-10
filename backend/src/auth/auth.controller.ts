@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Public } from '../common/decorators/public.decorator';
+import { REFRESH_COOKIE_NAME, REFRESH_COOKIE_PATH, REFRESH_TTL_MS } from './auth.constants';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 
@@ -32,7 +33,7 @@ export class AuthController {
   @Public()
   @Post('refresh')
   async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const rawToken: string | undefined = req.cookies?.['refresh_token'];
+    const rawToken: string | undefined = req.cookies?.[REFRESH_COOKIE_NAME];
     if (!rawToken) {
       throw new UnauthorizedException('Phiên đăng nhập không hợp lệ');
     }
@@ -44,21 +45,21 @@ export class AuthController {
   @Public()
   @Post('logout')
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const rawToken: string | undefined = req.cookies?.['refresh_token'];
+    const rawToken: string | undefined = req.cookies?.[REFRESH_COOKIE_NAME];
     if (rawToken) {
       await this.authService.logout(rawToken);
     }
-    res.clearCookie('refresh_token', { path: '/api/auth' });
+    res.clearCookie(REFRESH_COOKIE_NAME, { path: REFRESH_COOKIE_PATH });
     return { success: true };
   }
 
   private setRefreshCookie(res: Response, token: string): void {
-    res.cookie('refresh_token', token, {
+    res.cookie(REFRESH_COOKIE_NAME, token, {
       httpOnly: true,
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
-      path: '/api/auth',
-      maxAge: 7 * 24 * 3600 * 1000,
+      path: REFRESH_COOKIE_PATH,
+      maxAge: REFRESH_TTL_MS,
     });
   }
 }
