@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
@@ -36,11 +36,25 @@ export class UsersService {
   }
 
   async update(id: number, data: Partial<User>): Promise<User | null> {
-    await this.userRepo.update(id, data);
+    const { passwordHash, ...safe } = data;
+    const result = await this.userRepo.update(id, safe);
+    if (result.affected === 0) {
+      throw new NotFoundException('Không tìm thấy người dùng');
+    }
     return this.findById(id);
   }
 
+  async setPassword(id: number, passwordHash: string): Promise<void> {
+    const result = await this.userRepo.update(id, { passwordHash });
+    if (result.affected === 0) {
+      throw new NotFoundException('Không tìm thấy người dùng');
+    }
+  }
+
   async remove(id: number): Promise<void> {
-    await this.userRepo.delete(id);
+    const result = await this.userRepo.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException('Không tìm thấy người dùng');
+    }
   }
 }

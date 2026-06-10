@@ -1,3 +1,4 @@
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './user.entity';
@@ -93,6 +94,56 @@ describe('UsersService', () => {
       expect(mockQueryBuilder.getOne).toHaveBeenCalled();
       expect(result).toEqual(mockUser);
       expect(result?.passwordHash).toBe('hashed_password');
+    });
+  });
+
+  describe('update', () => {
+    it('should strip passwordHash before calling repository.update', async () => {
+      const data: Partial<User> = {
+        name: 'Updated',
+        passwordHash: 'should-be-stripped',
+      };
+
+      await service.update(1, data);
+
+      const updateCall = mockRepo.update.mock.calls[0];
+      expect(updateCall[0]).toBe(1);
+      expect(updateCall[1]).not.toHaveProperty('passwordHash');
+      expect(updateCall[1]).toEqual({ name: 'Updated' });
+    });
+
+    it('should throw NotFoundException when update affects no rows', async () => {
+      mockRepo.update.mockResolvedValue({ affected: 0 });
+
+      await expect(service.update(999, { name: 'Ghost' })).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('remove', () => {
+    it('should throw NotFoundException when delete affects no rows', async () => {
+      mockRepo.delete.mockResolvedValue({ affected: 0 });
+
+      await expect(service.remove(999)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('setPassword', () => {
+    it('should update only the passwordHash column', async () => {
+      await service.setPassword(1, 'new-hashed-password');
+
+      expect(mockRepo.update).toHaveBeenCalledWith(1, {
+        passwordHash: 'new-hashed-password',
+      });
+    });
+
+    it('should throw NotFoundException when setPassword affects no rows', async () => {
+      mockRepo.update.mockResolvedValue({ affected: 0 });
+
+      await expect(service.setPassword(999, 'hash')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

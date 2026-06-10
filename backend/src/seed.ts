@@ -14,7 +14,7 @@ async function bootstrap() {
   if (existing) {
     console.log(`[seed] Admin user already exists (id=${existing.id}). Nothing to do.`);
   } else {
-    const passwordHash = bcrypt.hashSync('admin123', 10);
+    const passwordHash = await bcrypt.hash('admin123', 10);
     const admin = await usersService.create({
       name: 'Quản trị viên',
       email: adminEmail,
