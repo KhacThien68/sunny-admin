@@ -238,6 +238,7 @@ export class ComponentsService {
             });
             await repo.save(existing);
           } else {
+            // Strip __row (parse-time annotation) before creating entity
             const entity = repo.create({
               code,
               classification: row['classification'] as string | undefined,

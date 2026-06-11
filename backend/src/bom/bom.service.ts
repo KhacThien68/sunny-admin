@@ -49,6 +49,7 @@ interface ParsedBomRow {
   parentCode: string;
   childCode: string;
   quantityPerUnit: number;
+  __row: number;
 }
 
 @Injectable()
@@ -249,10 +250,11 @@ export class BomService {
       const parentCode = row['parentCode'] as string;
       const childCode = row['childCode'] as string;
       const qty = row['quantityPerUnit'] as number;
+      const excelRow = row['__row'] as number;
 
       if (parentCode === childCode) {
         allErrors.push({
-          row: 0, // row number not tracked by ExcelService for valid rows
+          row: excelRow,
           column: 'Component',
           message: 'Mã cha và mã con không được trùng nhau',
         });
@@ -261,14 +263,14 @@ export class BomService {
 
       if (qty <= 0) {
         allErrors.push({
-          row: 0,
+          row: excelRow,
           column: 'Quantity',
           message: 'Số lượng phải lớn hơn 0',
         });
         continue;
       }
 
-      domainValidRows.push({ parentCode, childCode, quantityPerUnit: qty });
+      domainValidRows.push({ parentCode, childCode, quantityPerUnit: qty, __row: excelRow });
     }
 
     // Deduplicate within file: last (parentCode, childCode) pair wins
@@ -301,7 +303,7 @@ export class BomService {
       const cyclePath = this.detectCycle(row.parentCode, row.childCode, combinedEdges, CYCLE_DEPTH_CAP);
       if (cyclePath) {
         allErrors.push({
-          row: 0,
+          row: row.__row,
           column: 'Component',
           message: `BoM bị lặp vòng: ${cyclePath.join(' → ')}`,
         });
@@ -316,14 +318,16 @@ export class BomService {
       await this.dataSource.transaction(async (em: EntityManager) => {
         const repo = em.getRepository(BomLine);
         for (const row of cleanRows) {
+          // Strip __row before persisting — it is a parse-time annotation only
+          const { __row: _omit, ...rowData } = row;
           const existing = await repo.findOne({
-            where: { parentCode: row.parentCode, childCode: row.childCode },
+            where: { parentCode: rowData.parentCode, childCode: rowData.childCode },
           });
           if (existing) {
-            existing.quantityPerUnit = row.quantityPerUnit;
+            existing.quantityPerUnit = rowData.quantityPerUnit;
             await repo.save(existing);
           } else {
-            const line = repo.create(row);
+            const line = repo.create(rowData);
             await repo.save(line);
           }
         }

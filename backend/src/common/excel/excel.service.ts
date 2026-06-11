@@ -25,7 +25,7 @@ export interface RowError {
 }
 
 export interface ParseResult<T = Record<string, unknown>> {
-  rows: T[];
+  rows: (T & { __row: number })[];
   errors: RowError[];
 }
 
@@ -96,7 +96,7 @@ export class ExcelService {
     }
 
     // ── Step 2: iterate data rows ────────────────────────────────────────────
-    const rows: T[] = [];
+    const rows: (T & { __row: number })[] = [];
     const errors: RowError[] = [];
 
     const lastRow = ws.lastRow?.number ?? 1;
@@ -170,7 +170,8 @@ export class ExcelService {
         errors.push(...rowErrors);
         // Row excluded from valid rows
       } else {
-        rows.push(rowObj as T);
+        (rowObj as T & { __row: number })['__row'] = rowNum;
+        rows.push(rowObj as T & { __row: number });
       }
     }
 

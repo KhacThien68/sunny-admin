@@ -274,6 +274,8 @@ describe('BomService', () => {
       expect(result.errors.length).toBeGreaterThan(0);
       const qtyError = result.errors.find((e) => e.message === 'Số lượng phải lớn hơn 0');
       expect(qtyError).toBeDefined();
+      // First data row is Excel row 2 (row 1 = headers)
+      expect(qtyError!.row).toBe(2);
     });
 
     it('returns RowError when Material === Component', async () => {
@@ -289,6 +291,8 @@ describe('BomService', () => {
         (e) => e.message === 'Mã cha và mã con không được trùng nhau',
       );
       expect(sameCodeError).toBeDefined();
+      // First data row is Excel row 2 (row 1 = headers)
+      expect(sameCodeError!.row).toBe(2);
     });
 
     it('issues warning (not error) for unregistered code', async () => {
@@ -330,6 +334,9 @@ describe('BomService', () => {
 
       expect(result.errors.some((e) => e.message.includes('BoM bị lặp vòng'))).toBe(true);
       expect(result.valid).toBe(0);
+      // First data row is Excel row 2 (row 1 = headers)
+      const cycleError = result.errors.find((e) => e.message.includes('BoM bị lặp vòng'));
+      expect(cycleError!.row).toBe(2);
     });
   });
 });
