@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
@@ -14,6 +15,7 @@ export class User {
   @Column({ type: 'varchar', nullable: true }) team: string | null; // Bộ phận
   @Column({ unique: true }) email: string;
   @Column({ type: 'varchar', nullable: true }) phone: string | null;
+  @Exclude()
   @Column({ type: 'varchar', nullable: true, select: false })
   passwordHash: string | null; // null = nhân sự chưa có tài khoản login
   @Column({ default: false }) isAdmin: boolean;
