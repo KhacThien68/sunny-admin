@@ -11,6 +11,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { PermissionGuard } from './common/guards/permission.guard';
 import { UsersModule } from './users/users.module';
 import { PermissionsModule } from './permissions/permissions.module';
+import { ComponentsModule } from './components/components.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { PermissionsModule } from './permissions/permissions.module';
     UsersModule,
     AuthModule,
     PermissionsModule,
+    ComponentsModule,
   ],
   controllers: [AppController],
   providers: [
