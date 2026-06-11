@@ -2,6 +2,7 @@ import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { ExcelService } from '../common/excel/excel.service';
 import { ComponentEntity, Mob } from './component.entity';
 import { ComponentsService } from './components.service';
 import { CreateComponentDto } from './dto/component.dto';
@@ -59,6 +60,7 @@ describe('ComponentsService', () => {
           provide: DataSource,
           useValue: mockDataSource,
         },
+        ExcelService,
       ],
     }).compile();
 

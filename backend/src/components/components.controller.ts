@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -8,7 +9,12 @@ import {
   Patch,
   Post,
   Query,
+  Res,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
 import { Type } from 'class-transformer';
 import { IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { RequirePermission } from '../common/decorators/require-permission.decorator';
@@ -41,6 +47,30 @@ class ComponentQueryDto {
 @Controller('components')
 export class ComponentsController {
   constructor(private readonly componentsService: ComponentsService) {}
+
+  @Get('template')
+  @RequirePermission(ScreenKey.COMPONENTS, 'read')
+  async getTemplate(@Res() res: Response) {
+    const buffer = await this.componentsService.buildImportTemplate();
+    res.set({
+      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': 'attachment; filename="components-template.xlsx"',
+    });
+    res.send(buffer);
+  }
+
+  @Post('import')
+  @RequirePermission(ScreenKey.COMPONENTS, 'create')
+  @UseInterceptors(FileInterceptor('file'))
+  async importComponents(
+    @UploadedFile() file: Express.Multer.File | undefined,
+    @Query('mode') mode: 'preview' | 'commit' = 'preview',
+  ) {
+    if (!file || !file.originalname.toLowerCase().endsWith('.xlsx')) {
+      throw new BadRequestException('Vui lòng chọn file .xlsx');
+    }
+    return this.componentsService.importFromExcel(file.buffer, mode);
+  }
 
   @Get('classifications')
   @RequirePermission(ScreenKey.COMPONENTS, 'read')
