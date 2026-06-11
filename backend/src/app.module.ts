@@ -12,6 +12,7 @@ import { PermissionGuard } from './common/guards/permission.guard';
 import { UsersModule } from './users/users.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { ComponentsModule } from './components/components.module';
+import { BomModule } from './bom/bom.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ComponentsModule } from './components/components.module';
     AuthModule,
     PermissionsModule,
     ComponentsModule,
+    BomModule,
   ],
   controllers: [AppController],
   providers: [
