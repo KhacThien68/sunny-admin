@@ -169,8 +169,7 @@ export class ComponentsService {
 
   /** Build and return the Excel template buffer for the components import sheet. */
   async buildImportTemplate(): Promise<Buffer> {
-    const svc = this.excelService!;
-    return svc.buildTemplate(COMPONENTS_SPEC);
+    return this.excelService.buildTemplate(COMPONENTS_SPEC);
   }
 
   /**
@@ -181,10 +180,11 @@ export class ComponentsService {
     buffer: Buffer,
     mode: 'preview' | 'commit',
   ): Promise<ImportResult> {
-    const svc = this.excelService!;
-
     // Parse with generic service using enum values that include Vietnamese labels
-    const parsed = await svc.parse<Record<string, unknown>>(buffer, COMPONENTS_SPEC);
+    const parsed = await this.excelService.parse<Record<string, unknown>>(
+      buffer,
+      COMPONENTS_SPEC,
+    );
 
     // Post-process: map mob values and convert remaining enum errors to domain-specific message
     const domainErrors: RowError[] = [];
