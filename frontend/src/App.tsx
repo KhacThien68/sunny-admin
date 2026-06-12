@@ -7,6 +7,8 @@ import DashboardPage from './pages/DashboardPage'
 import PlaceholderPage from './pages/PlaceholderPage'
 import ComponentsPage from './pages/components/ComponentsPage'
 import BomPage from './pages/bom/BomPage'
+import PersonnelPage from './pages/personnel/PersonnelPage'
+import OnhandPage from './pages/onhand/OnhandPage'
 
 function NotFound() {
   return (
@@ -49,7 +51,7 @@ function App() {
             path="/personnel"
             element={
               <ScreenGuard screenKey="PERSONNEL">
-                <PlaceholderPage title="Nhân sự" />
+                <PersonnelPage />
               </ScreenGuard>
             }
           />
@@ -65,7 +67,7 @@ function App() {
             path="/onhand"
             element={
               <ScreenGuard screenKey="ONHAND">
-                <PlaceholderPage title="Hàng thực tế" />
+                <OnhandPage />
               </ScreenGuard>
             }
           />
