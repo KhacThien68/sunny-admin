@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, Not, Repository } from 'typeorm';
+import { DataSource, EntityManager, IsNull, Not, Repository } from 'typeorm';
 import { ComponentEntity, Mob } from '../components/component.entity';
 import { User } from '../users/user.entity';
 import { AddMemberDto, AddScopeDto, CreateTeamDto, UpdateTeamDto } from './dto/team.dto';
@@ -286,8 +286,8 @@ export class PurchasingTeamsService {
     const duplicate = await this.scopeRepo.findOne({
       where: {
         teamId,
-        classification: classValue,
-        componentCode: codeValue,
+        classification: classValue ?? IsNull(),
+        componentCode: codeValue ?? IsNull(),
       },
     });
     if (duplicate) {
