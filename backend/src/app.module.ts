@@ -13,6 +13,7 @@ import { UsersModule } from './users/users.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { ComponentsModule } from './components/components.module';
 import { BomModule } from './bom/bom.module';
+import { OnhandModule } from './onhand/onhand.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { BomModule } from './bom/bom.module';
     PermissionsModule,
     ComponentsModule,
     BomModule,
+    OnhandModule,
   ],
   controllers: [AppController],
   providers: [
