@@ -5,6 +5,7 @@ import RequireAuth from './components/RequireAuth'
 import AppLayout, { ScreenGuard } from './layouts/AppLayout'
 import DashboardPage from './pages/DashboardPage'
 import PlaceholderPage from './pages/PlaceholderPage'
+import ComponentsPage from './pages/components/ComponentsPage'
 
 function NotFound() {
   return (
@@ -31,7 +32,7 @@ function App() {
             path="/components"
             element={
               <ScreenGuard screenKey="COMPONENTS">
-                <PlaceholderPage title="Quản lý mã" />
+                <ComponentsPage />
               </ScreenGuard>
             }
           />
