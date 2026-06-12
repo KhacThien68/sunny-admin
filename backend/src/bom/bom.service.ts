@@ -343,6 +343,19 @@ export class BomService {
   }
 
   // ────────────────────────────────────────────────────────────────────────────
+  //  MRP helper
+  // ────────────────────────────────────────────────────────────────────────────
+
+  async getAllEdges(): Promise<{ parentCode: string; childCode: string; qtyPerUnit: number }[]> {
+    const lines = await this.bomRepo.find();
+    return lines.map((l) => ({
+      parentCode: l.parentCode,
+      childCode: l.childCode,
+      qtyPerUnit: l.quantityPerUnit,
+    }));
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
   //  Cycle detection (DFS)
   // ────────────────────────────────────────────────────────────────────────────
 
