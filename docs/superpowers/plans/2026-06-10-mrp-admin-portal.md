@@ -27,7 +27,7 @@
 
 > MySQL đã cài sẵn trên máy dev (external). Thông tin kết nối nằm trong `backend/.env` (Task 2). KHÔNG dùng Docker.
 
-- [ ] **Step 1: git init + .gitignore**
+- [x] **Step 1: git init + .gitignore**
 
 ```bash
 git init
@@ -42,7 +42,7 @@ dist/
 .DS_Store
 ```
 
-- [ ] **Step 2: Tạo database** — dùng mysql client có sẵn trên máy:
+- [x] **Step 2: Tạo database** — dùng mysql client có sẵn trên máy:
 
 ```powershell
 mysql -h localhost -P 3306 -u root -p -e "CREATE DATABASE IF NOT EXISTS sunny_admin CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
@@ -50,18 +50,18 @@ mysql -h localhost -P 3306 -u root -p -e "CREATE DATABASE IF NOT EXISTS sunny_ad
 
 (Nếu `mysql` không có trong PATH, tìm trong `C:\Program Files\MySQL\MySQL Server *\bin\`. Credentials thực tế lấy từ người dùng / `backend/.env`.)
 
-- [ ] **Step 3: README.md** — ghi cách chạy: yêu cầu MySQL local + tạo database `sunny_admin`, cấu hình `backend/.env`, `cd backend && npm run start:dev`, `cd frontend && npm run dev`, tài khoản mặc định `admin@sunny.local / admin123`.
+- [x] **Step 3: README.md** — ghi cách chạy: yêu cầu MySQL local + tạo database `sunny_admin`, cấu hình `backend/.env`, `cd backend && npm run start:dev`, `cd frontend && npm run dev`, tài khoản mặc định `admin@sunny.local / admin123`.
 
-- [ ] **Step 4: Verify** — `mysql ... -e "SHOW DATABASES LIKE 'sunny_admin'"` → 1 dòng.
+- [x] **Step 4: Verify** — `mysql ... -e "SHOW DATABASES LIKE 'sunny_admin'"` → 1 dòng.
 
-- [ ] **Step 5: Commit** — `git add -A; git commit -m "chore: init repo"`
+- [x] **Step 5: Commit** — `git add -A; git commit -m "chore: init repo"`
 
 ### Task 2: Scaffold backend NestJS + TypeORM
 
 **Files:**
 - Create: `backend/` (nest new), `backend/.env`, `backend/src/config/typeorm.config.ts`, sửa `backend/src/main.ts`, `backend/src/app.module.ts`
 
-- [ ] **Step 1: Scaffold**
+- [x] **Step 1: Scaffold**
 
 ```bash
 npx @nestjs/cli@10 new backend --package-manager npm --skip-git
@@ -70,7 +70,7 @@ npm i @nestjs/typeorm typeorm mysql2 @nestjs/jwt @nestjs/config bcrypt cookie-pa
 npm i -D @types/bcrypt @types/cookie-parser @types/multer
 ```
 
-- [ ] **Step 2: `backend/.env`** (và `.env.example` cùng nội dung):
+- [x] **Step 2: `backend/.env`** (và `.env.example` cùng nội dung):
 
 ```
 DB_HOST=localhost
@@ -84,21 +84,21 @@ JWT_ACCESS_TTL=900s
 JWT_REFRESH_TTL=7d
 ```
 
-- [ ] **Step 3: `app.module.ts`** — `ConfigModule.forRoot({isGlobal:true})` + `TypeOrmModule.forRootAsync` đọc env, `autoLoadEntities: true`, `synchronize: true` (dev). `main.ts`: `app.setGlobalPrefix('api')`, `app.use(cookieParser())`, `app.useGlobalPipes(new ValidationPipe({whitelist:true, transform:true}))`, listen 3000. Thêm `GET /api/health` trả `{status:'ok'}` trong AppController.
+- [x] **Step 3: `app.module.ts`** — `ConfigModule.forRoot({isGlobal:true})` + `TypeOrmModule.forRootAsync` đọc env, `autoLoadEntities: true`, `synchronize: true` (dev). `main.ts`: `app.setGlobalPrefix('api')`, `app.use(cookieParser())`, `app.useGlobalPipes(new ValidationPipe({whitelist:true, transform:true}))`, listen 3000. Thêm `GET /api/health` trả `{status:'ok'}` trong AppController.
 
-- [ ] **Step 4: Verify**
+- [x] **Step 4: Verify**
 
 Run: `npm run start:dev` (background) rồi `curl http://localhost:3000/api/health`
 Expected: `{"status":"ok"}`, log TypeORM connect thành công.
 
-- [ ] **Step 5: Commit** — `git add -A; git commit -m "feat(backend): scaffold nestjs with typeorm mysql connection"`
+- [x] **Step 5: Commit** — `git add -A; git commit -m "feat(backend): scaffold nestjs with typeorm mysql connection"`
 
 ### Task 3: Scaffold frontend Vite + AntD + Router
 
 **Files:**
 - Create: `frontend/` (vite), `frontend/vite.config.ts` (proxy), `frontend/src/App.tsx`, `frontend/src/main.tsx`
 
-- [ ] **Step 1: Scaffold**
+- [x] **Step 1: Scaffold**
 
 ```bash
 npm create vite@latest frontend -- --template react-ts
@@ -106,7 +106,7 @@ cd frontend
 npm i antd @tanstack/react-query zustand axios react-router-dom dayjs
 ```
 
-- [ ] **Step 2: `vite.config.ts`** thêm proxy:
+- [x] **Step 2: `vite.config.ts`** thêm proxy:
 
 ```ts
 export default defineConfig({
@@ -115,11 +115,11 @@ export default defineConfig({
 });
 ```
 
-- [ ] **Step 3:** `main.tsx` bọc `<ConfigProvider locale={viVN}>` (import `antd/locale/vi_VN`), `QueryClientProvider`, `BrowserRouter`. `App.tsx` tạm render route `/login` (placeholder text "Đăng nhập") và `/` (placeholder "Sunny Admin").
+- [x] **Step 3:** `main.tsx` bọc `<ConfigProvider locale={viVN}>` (import `antd/locale/vi_VN`), `QueryClientProvider`, `BrowserRouter`. `App.tsx` tạm render route `/login` (placeholder text "Đăng nhập") và `/` (placeholder "Sunny Admin").
 
-- [ ] **Step 4: Verify** — `npm run dev`, mở `http://localhost:5173` thấy placeholder; `npm run build` pass.
+- [x] **Step 4: Verify** — `npm run dev`, mở `http://localhost:5173` thấy placeholder; `npm run build` pass.
 
-- [ ] **Step 5: Commit** — `git commit -m "feat(frontend): scaffold vite react antd with api proxy"`
+- [x] **Step 5: Commit** — `git commit -m "feat(frontend): scaffold vite react antd with api proxy"`
 
 ---
 
@@ -130,7 +130,7 @@ export default defineConfig({
 **Files:**
 - Create: `backend/src/users/user.entity.ts`, `backend/src/users/users.module.ts`, `backend/src/users/users.service.ts`, `backend/src/seed.ts`
 
-- [ ] **Step 1: Entity**
+- [x] **Step 1: Entity**
 
 ```ts
 // backend/src/users/user.entity.ts
@@ -152,13 +152,13 @@ export class User {
 }
 ```
 
-- [ ] **Step 2:** `users.service.ts` có `findByEmailWithPassword(email)` (addSelect passwordHash), `findById`, `create`, `update`, `remove`, `findAll`. `users.module.ts` exports service.
+- [x] **Step 2:** `users.service.ts` có `findByEmailWithPassword(email)` (addSelect passwordHash), `findById`, `create`, `update`, `remove`, `findAll`. `users.module.ts` exports service.
 
-- [ ] **Step 3: Seed script** `backend/src/seed.ts` — bootstrap app context, nếu chưa có user `admin@sunny.local` thì tạo: name `Quản trị viên`, `isAdmin: true`, passwordHash = `bcrypt.hashSync('admin123', 10)`. Thêm script `"seed": "ts-node src/seed.ts"` (hoặc chạy qua `npx ts-node -r tsconfig-paths/register src/seed.ts`).
+- [x] **Step 3: Seed script** `backend/src/seed.ts` — bootstrap app context, nếu chưa có user `admin@sunny.local` thì tạo: name `Quản trị viên`, `isAdmin: true`, passwordHash = `bcrypt.hashSync('admin123', 10)`. Thêm script `"seed": "ts-node src/seed.ts"` (hoặc chạy qua `npx ts-node -r tsconfig-paths/register src/seed.ts`).
 
-- [ ] **Step 4: Verify** — `npm run seed` rồi query: `mysql -h localhost -u root -p<pass> sunny_admin -e "SELECT id,email,isAdmin FROM users"` → 1 dòng admin.
+- [x] **Step 4: Verify** — `npm run seed` rồi query: `mysql -h localhost -u root -p<pass> sunny_admin -e "SELECT id,email,isAdmin FROM users"` → 1 dòng admin.
 
-- [ ] **Step 5: Commit** — `git commit -m "feat(backend): user entity and admin seed"`
+- [x] **Step 5: Commit** — `git commit -m "feat(backend): user entity and admin seed"`
 
 ### Task 5: Auth module (login / refresh / logout)
 
@@ -166,7 +166,7 @@ export class User {
 - Create: `backend/src/auth/auth.module.ts`, `auth.controller.ts`, `auth.service.ts`, `refresh-token.entity.ts`, `dto/login.dto.ts`, `backend/src/common/guards/jwt-auth.guard.ts`, `backend/src/common/decorators/current-user.decorator.ts`
 - Test: `backend/src/auth/auth.service.spec.ts`
 
-- [ ] **Step 1: Entity refresh token**
+- [x] **Step 1: Entity refresh token**
 
 ```ts
 @Entity('refresh_tokens')
@@ -179,14 +179,14 @@ export class RefreshToken {
 }
 ```
 
-- [ ] **Step 2: Failing tests** `auth.service.spec.ts` (mock repository + UsersService):
+- [x] **Step 2: Failing tests** `auth.service.spec.ts` (mock repository + UsersService):
   - `login` đúng mật khẩu → trả `{ accessToken, refreshToken, user }`; user inactive → `UnauthorizedException`; sai mật khẩu → `UnauthorizedException`.
   - `refresh` với token đã revoke hoặc hết hạn → `UnauthorizedException`; token hợp lệ → access mới + **rotate** refresh (revoke cũ, tạo mới).
   - `logout` → revoke token.
 
 Run: `npm test -- auth.service` → FAIL (chưa có service).
 
-- [ ] **Step 3: Implement `auth.service.ts`**
+- [x] **Step 3: Implement `auth.service.ts`**
 
 ```ts
 // Cốt lõi:
@@ -207,7 +207,7 @@ async refresh(rawToken: string) { /* tìm theo sha256, check revokedAt/expiresAt
 async logout(rawToken: string) { /* set revokedAt */ }
 ```
 
-- [ ] **Step 4: Controller** — cookie là điểm bắt buộc theo spec:
+- [x] **Step 4: Controller** — cookie là điểm bắt buộc theo spec:
 
 ```ts
 @Post('login')

@@ -9,6 +9,8 @@ import ComponentsPage from './pages/components/ComponentsPage'
 import BomPage from './pages/bom/BomPage'
 import PersonnelPage from './pages/personnel/PersonnelPage'
 import OnhandPage from './pages/onhand/OnhandPage'
+import TeamsListPage from './pages/purchasing/TeamsListPage'
+import TeamDetailPage from './pages/purchasing/TeamDetailPage'
 
 function NotFound() {
   return (
@@ -59,7 +61,15 @@ function App() {
             path="/purchasing-teams"
             element={
               <ScreenGuard screenKey="PURCHASING_TEAMS">
-                <PlaceholderPage title="Team mua hàng" />
+                <TeamsListPage />
+              </ScreenGuard>
+            }
+          />
+          <Route
+            path="/purchasing-teams/:id"
+            element={
+              <ScreenGuard screenKey="PURCHASING_TEAMS">
+                <TeamDetailPage />
               </ScreenGuard>
             }
           />
