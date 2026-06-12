@@ -56,11 +56,12 @@ export class OrdersController {
   async importOrders(
     @UploadedFile() file: Express.Multer.File | undefined,
     @Query('mode') mode: 'preview' | 'commit' = 'preview',
+    @CurrentUser() user?: { sub: number },
   ) {
     if (!file || !file.originalname.toLowerCase().endsWith('.xlsx')) {
       throw new BadRequestException('Vui lòng chọn file .xlsx');
     }
-    return this.ordersService.importFromExcel(file.buffer, mode);
+    return this.ordersService.importFromExcel(file.buffer, mode, user?.sub ?? 0);
   }
 
   @Post('aggregate')

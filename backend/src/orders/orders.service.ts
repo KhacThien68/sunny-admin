@@ -361,6 +361,7 @@ export class OrdersService {
   async importFromExcel(
     buffer: Buffer,
     mode: 'preview' | 'commit',
+    userId = 0,
   ): Promise<OrderImportResult> {
     const parsed = await this.excelService.parse<Record<string, unknown>>(buffer, ORDERS_SPEC);
 
@@ -434,7 +435,7 @@ export class OrdersService {
             customerGroup,
             note: null,
             status: OrderStatus.DRAFT,
-            createdById: 0, // system import
+            createdById: userId,
           });
           const savedOrder = await orderRepo.save(order);
 
