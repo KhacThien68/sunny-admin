@@ -15,6 +15,7 @@ import { ComponentsModule } from './components/components.module';
 import { BomModule } from './bom/bom.module';
 import { OnhandModule } from './onhand/onhand.module';
 import { PurchasingTeamsModule } from './purchasing-teams/purchasing-teams.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { PurchasingTeamsModule } from './purchasing-teams/purchasing-teams.modul
     BomModule,
     OnhandModule,
     PurchasingTeamsModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [
