@@ -6,6 +6,7 @@ import AppLayout, { ScreenGuard } from './layouts/AppLayout'
 import DashboardPage from './pages/DashboardPage'
 import PlaceholderPage from './pages/PlaceholderPage'
 import ComponentsPage from './pages/components/ComponentsPage'
+import BomPage from './pages/bom/BomPage'
 
 function NotFound() {
   return (
@@ -40,7 +41,7 @@ function App() {
             path="/bom"
             element={
               <ScreenGuard screenKey="BOM">
-                <PlaceholderPage title="Quản lý BoM" />
+                <BomPage />
               </ScreenGuard>
             }
           />
