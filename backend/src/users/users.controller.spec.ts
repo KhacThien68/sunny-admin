@@ -5,6 +5,7 @@ import {
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { PersonnelController } from './personnel.controller';
+import { PersonnelImportService } from './personnel-import.service';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -42,6 +43,13 @@ describe('UsersController', () => {
         {
           provide: UsersService,
           useValue: mockService,
+        },
+        {
+          provide: PersonnelImportService,
+          useValue: {
+            buildImportTemplate: jest.fn().mockResolvedValue(Buffer.from('')),
+            importFromExcel: jest.fn().mockResolvedValue({ valid: 0, errors: [], committed: false }),
+          },
         },
       ],
     }).compile();
