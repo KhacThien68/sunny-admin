@@ -11,6 +11,7 @@ import PersonnelPage from './pages/personnel/PersonnelPage'
 import OnhandPage from './pages/onhand/OnhandPage'
 import TeamsListPage from './pages/purchasing/TeamsListPage'
 import TeamDetailPage from './pages/purchasing/TeamDetailPage'
+import OrdersPage from './pages/orders/OrdersPage'
 
 function NotFound() {
   return (
@@ -85,7 +86,7 @@ function App() {
             path="/orders"
             element={
               <ScreenGuard screenKey="ORDERS">
-                <PlaceholderPage title="Đơn hàng" />
+                <OrdersPage />
               </ScreenGuard>
             }
           />
