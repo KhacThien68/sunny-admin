@@ -4,7 +4,6 @@ import LoginPage from './pages/LoginPage'
 import RequireAuth from './components/RequireAuth'
 import AppLayout, { ScreenGuard } from './layouts/AppLayout'
 import DashboardPage from './pages/DashboardPage'
-import PlaceholderPage from './pages/PlaceholderPage'
 import ComponentsPage from './pages/components/ComponentsPage'
 import BomPage from './pages/bom/BomPage'
 import PersonnelPage from './pages/personnel/PersonnelPage'
@@ -16,6 +15,8 @@ import MrpPage from './pages/mrp/MrpPage'
 import MrpRunDetailPage from './pages/mrp/MrpRunDetailPage'
 import PurchaseSummaryPage from './pages/outputs/PurchaseSummaryPage'
 import PsiPage from './pages/outputs/PsiPage'
+import UsersPage from './pages/admin/UsersPage'
+import PermissionsPage from './pages/admin/PermissionsPage'
 
 function NotFound() {
   return (
@@ -136,7 +137,7 @@ function App() {
             path="/users"
             element={
               <ScreenGuard screenKey="USERS">
-                <PlaceholderPage title="Người dùng" />
+                <UsersPage />
               </ScreenGuard>
             }
           />
@@ -144,7 +145,7 @@ function App() {
             path="/permissions"
             element={
               <ScreenGuard screenKey="PERMISSIONS">
-                <PlaceholderPage title="Phân quyền" />
+                <PermissionsPage />
               </ScreenGuard>
             }
           />
