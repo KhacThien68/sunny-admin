@@ -14,6 +14,8 @@ import TeamDetailPage from './pages/purchasing/TeamDetailPage'
 import OrdersPage from './pages/orders/OrdersPage'
 import MrpPage from './pages/mrp/MrpPage'
 import MrpRunDetailPage from './pages/mrp/MrpRunDetailPage'
+import PurchaseSummaryPage from './pages/outputs/PurchaseSummaryPage'
+import PsiPage from './pages/outputs/PsiPage'
 
 function NotFound() {
   return (
@@ -116,7 +118,7 @@ function App() {
             path="/outputs/purchase"
             element={
               <ScreenGuard screenKey="OUTPUT_PURCHASE">
-                <PlaceholderPage title="Tổng hợp mua & Thu hồi phế" />
+                <PurchaseSummaryPage />
               </ScreenGuard>
             }
           />
@@ -124,7 +126,7 @@ function App() {
             path="/outputs/psi"
             element={
               <ScreenGuard screenKey="OUTPUT_PSI">
-                <PlaceholderPage title="Tồn kho PSI" />
+                <PsiPage />
               </ScreenGuard>
             }
           />
