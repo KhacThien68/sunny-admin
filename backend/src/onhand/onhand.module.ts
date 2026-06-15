@@ -7,7 +7,11 @@ import { OnhandInventory } from './onhand.entity';
 import { OnhandService } from './onhand.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OnhandInventory]), ComponentsModule, ExcelModule],
+  imports: [
+    TypeOrmModule.forFeature([OnhandInventory]),
+    ComponentsModule,
+    ExcelModule,
+  ],
   controllers: [OnhandController],
   providers: [OnhandService],
   exports: [OnhandService],

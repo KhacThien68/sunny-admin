@@ -64,14 +64,10 @@ export default function ImportExcelButton({
     const formData = new FormData()
     formData.append('file', file)
     try {
-      const res = await apiClient.post<ImportResult>(
-        importUrl,
-        formData,
-        {
-          headers: MULTIPART_HEADERS,
-          params: { mode: IMPORT_MODE.PREVIEW },
-        },
-      )
+      const res = await apiClient.post<ImportResult>(importUrl, formData, {
+        headers: MULTIPART_HEADERS,
+        params: { mode: IMPORT_MODE.PREVIEW },
+      })
       setPreview(res.data)
       setModalOpen(true)
     } catch (err) {
@@ -87,14 +83,10 @@ export default function ImportExcelButton({
     const formData = new FormData()
     formData.append('file', fileRef.current)
     try {
-      await apiClient.post<ImportResult>(
-        importUrl,
-        formData,
-        {
-          headers: MULTIPART_HEADERS,
-          params: { mode: IMPORT_MODE.COMMIT },
-        },
-      )
+      await apiClient.post<ImportResult>(importUrl, formData, {
+        headers: MULTIPART_HEADERS,
+        params: { mode: IMPORT_MODE.COMMIT },
+      })
       void message.success(`Đã ghi ${preview.valid} dòng`)
       setModalOpen(false)
       setPreview(null)

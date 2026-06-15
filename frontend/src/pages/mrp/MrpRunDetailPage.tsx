@@ -17,11 +17,7 @@ import { ArrowLeftOutlined, LockOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useParams, useNavigate } from 'react-router-dom'
 import { usePermission } from '../../hooks/usePermission'
-import {
-  getMrpRunDetail,
-  patchMrpLine,
-  closeRound,
-} from '../../api/mrp'
+import { getMrpRunDetail, patchMrpLine, closeRound } from '../../api/mrp'
 import type { MrpLine, MrpRound, MrpRunDetailResponse } from '../../types'
 import { QUERY_KEYS } from '../../constants/queryKeys'
 import { MOB_LABELS, MOB_COLORS } from '../../constants/labels'
@@ -50,7 +46,8 @@ function PurchaseCell({ line, runId, editable, onUpdated }: PurchaseCellProps) {
   const originalRef = useRef(line.purchase)
 
   const patchMutation = useMutation({
-    mutationFn: (purchase: number) => patchMrpLine(runId, line.id, { purchase }),
+    mutationFn: (purchase: number) =>
+      patchMrpLine(runId, line.id, { purchase }),
     onSuccess: (updated) => {
       originalRef.current = updated.purchase
       setInputVal(updated.purchase)
@@ -78,13 +75,15 @@ function PurchaseCell({ line, runId, editable, onUpdated }: PurchaseCellProps) {
       line.mob === 'KHONG'
         ? 'Mã khai báo là sản xuất'
         : line.mob === 'BAT_BUOC'
-        ? 'Mã bắt buộc mua'
-        : undefined
+          ? 'Mã bắt buộc mua'
+          : undefined
 
     if (lockReason) {
       return (
         <Tooltip title={lockReason}>
-          <span style={{ color: 'rgba(0,0,0,0.45)' }}>{fmtNum(line.purchase)}</span>
+          <span style={{ color: 'rgba(0,0,0,0.45)' }}>
+            {fmtNum(line.purchase)}
+          </span>
         </Tooltip>
       )
     }
@@ -110,7 +109,11 @@ function PurchaseCell({ line, runId, editable, onUpdated }: PurchaseCellProps) {
   return (
     <Tooltip title={`0 hoặc ≥ MoQ (${fmtNum(line.moq)})`}>
       <span
-        style={{ cursor: 'pointer', borderBottom: '1px dashed #1677ff', color: '#1677ff' }}
+        style={{
+          cursor: 'pointer',
+          borderBottom: '1px dashed #1677ff',
+          color: '#1677ff',
+        }}
         onClick={() => setEditing(true)}
       >
         {fmtNum(line.purchase)}
@@ -265,25 +268,20 @@ export default function MrpRunDetailPage() {
   const queryClient = useQueryClient()
   const { canUpdate } = usePermission('MRP')
 
-  const {
-    data,
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: QUERY_KEYS.mrpRun(runId),
     queryFn: () => getMrpRunDetail(runId),
     enabled: !isNaN(runId),
     retry: (failureCount, error) => {
-      const status = (error as { response?: { status?: number } })?.response?.status
+      const status = (error as { response?: { status?: number } })?.response
+        ?.status
       if (status === 404) return false
       return failureCount < 3
     },
   })
 
   // Derive active tab: first unlocked round (current round), or last round if all locked
-  const defaultActiveRound = data
-    ? data.run.currentRound
-    : 1
+  const defaultActiveRound = data ? data.run.currentRound : 1
 
   const [activeTab, setActiveTab] = useState<string | null>(null)
 
@@ -292,11 +290,16 @@ export default function MrpRunDetailPage() {
   const closeRoundMutation = useMutation({
     mutationFn: () => closeRound(runId),
     onSuccess: (result) => {
-      queryClient.setQueryData<MrpRunDetailResponse>(QUERY_KEYS.mrpRun(runId), result)
+      queryClient.setQueryData<MrpRunDetailResponse>(
+        QUERY_KEYS.mrpRun(runId),
+        result,
+      )
       if (result.run.status === 'DONE') {
         void message.success('Phiên MRP đã hoàn tất')
       } else {
-        void message.success(`Đã chốt vòng, chuyển sang vòng 2.${result.run.currentRound}`)
+        void message.success(
+          `Đã chốt vòng, chuyển sang vòng 2.${result.run.currentRound}`,
+        )
         setActiveTab(String(result.run.currentRound))
       }
     },
@@ -305,21 +308,30 @@ export default function MrpRunDetailPage() {
     },
   })
 
-  function handleLineUpdated(roundNum: number, lineId: number, updatedLine: MrpLine) {
-    queryClient.setQueryData<MrpRunDetailResponse>(QUERY_KEYS.mrpRun(runId), (old) => {
-      if (!old) return old
-      return {
-        ...old,
-        rounds: old.rounds.map((r) =>
-          r.round === roundNum
-            ? {
-                ...r,
-                lines: r.lines.map((l) => (l.id === lineId ? updatedLine : l)),
-              }
-            : r,
-        ),
-      }
-    })
+  function handleLineUpdated(
+    roundNum: number,
+    lineId: number,
+    updatedLine: MrpLine,
+  ) {
+    queryClient.setQueryData<MrpRunDetailResponse>(
+      QUERY_KEYS.mrpRun(runId),
+      (old) => {
+        if (!old) return old
+        return {
+          ...old,
+          rounds: old.rounds.map((r) =>
+            r.round === roundNum
+              ? {
+                  ...r,
+                  lines: r.lines.map((l) =>
+                    l.id === lineId ? updatedLine : l,
+                  ),
+                }
+              : r,
+          ),
+        }
+      },
+    )
   }
 
   if (isNaN(runId)) {
@@ -391,10 +403,7 @@ export default function MrpRunDetailPage() {
                 cancelText="Hủy"
                 disabled={closeRoundMutation.isPending}
               >
-                <Button
-                  type="primary"
-                  loading={closeRoundMutation.isPending}
-                >
+                <Button type="primary" loading={closeRoundMutation.isPending}>
                   {`Chốt vòng 2.${currentRoundNum}`}
                 </Button>
               </Popconfirm>
@@ -416,7 +425,14 @@ export default function MrpRunDetailPage() {
         >
           Danh sách phiên
         </Button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            flexWrap: 'wrap',
+          }}
+        >
           <Title level={4} style={{ margin: 0 }}>
             {`Phiên chạy MRP #${runId}`}
           </Title>

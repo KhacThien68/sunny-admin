@@ -28,7 +28,9 @@ export default function PermissionsPage() {
   const { message } = App.useApp()
   const { canUpdate } = usePermission('PERMISSIONS')
 
-  const [selectedUserId, setSelectedUserId] = useState<number | undefined>(undefined)
+  const [selectedUserId, setSelectedUserId] = useState<number | undefined>(
+    undefined,
+  )
   const [localPerms, setLocalPerms] = useState<PermissionEntry[]>([])
 
   // Fetch all users for the Select
@@ -71,7 +73,9 @@ export default function PermissionsPage() {
     },
   })
 
-  const selectedUser: User | undefined = users.find((u) => u.id === selectedUserId)
+  const selectedUser: User | undefined = users.find(
+    (u) => u.id === selectedUserId,
+  )
 
   function updatePerm(
     screenKey: string,
@@ -148,7 +152,7 @@ export default function PermissionsPage() {
       key: 'canRead',
       width: 90,
       align: 'center' as const,
-      render: (_: unknown, record: typeof tableData[0]) => (
+      render: (_: unknown, record: (typeof tableData)[0]) => (
         <Checkbox
           checked={record.canRead}
           disabled={!canUpdate}
@@ -161,11 +165,13 @@ export default function PermissionsPage() {
       key: 'canCreate',
       width: 90,
       align: 'center' as const,
-      render: (_: unknown, record: typeof tableData[0]) => (
+      render: (_: unknown, record: (typeof tableData)[0]) => (
         <Checkbox
           checked={record.canCreate}
           disabled={!canUpdate}
-          onChange={(e) => updatePerm(record.key, 'canCreate', e.target.checked)}
+          onChange={(e) =>
+            updatePerm(record.key, 'canCreate', e.target.checked)
+          }
         />
       ),
     },
@@ -174,11 +180,13 @@ export default function PermissionsPage() {
       key: 'canUpdate',
       width: 90,
       align: 'center' as const,
-      render: (_: unknown, record: typeof tableData[0]) => (
+      render: (_: unknown, record: (typeof tableData)[0]) => (
         <Checkbox
           checked={record.canUpdate}
           disabled={!canUpdate}
-          onChange={(e) => updatePerm(record.key, 'canUpdate', e.target.checked)}
+          onChange={(e) =>
+            updatePerm(record.key, 'canUpdate', e.target.checked)
+          }
         />
       ),
     },
@@ -187,11 +195,13 @@ export default function PermissionsPage() {
       key: 'canDelete',
       width: 90,
       align: 'center' as const,
-      render: (_: unknown, record: typeof tableData[0]) => (
+      render: (_: unknown, record: (typeof tableData)[0]) => (
         <Checkbox
           checked={record.canDelete}
           disabled={!canUpdate}
-          onChange={(e) => updatePerm(record.key, 'canDelete', e.target.checked)}
+          onChange={(e) =>
+            updatePerm(record.key, 'canDelete', e.target.checked)
+          }
         />
       ),
     },
@@ -235,7 +245,9 @@ export default function PermissionsPage() {
 
       {/* No user selected */}
       {selectedUserId === undefined && (
-        <Text type="secondary">Vui lòng chọn người dùng để xem và chỉnh sửa phân quyền.</Text>
+        <Text type="secondary">
+          Vui lòng chọn người dùng để xem và chỉnh sửa phân quyền.
+        </Text>
       )}
 
       {/* Admin user — show info alert */}

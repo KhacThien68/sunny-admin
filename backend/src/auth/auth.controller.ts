@@ -8,7 +8,11 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Public } from '../common/decorators/public.decorator';
-import { REFRESH_COOKIE_NAME, REFRESH_COOKIE_PATH, REFRESH_TTL_MS } from './auth.constants';
+import {
+  REFRESH_COOKIE_NAME,
+  REFRESH_COOKIE_PATH,
+  REFRESH_TTL_MS,
+} from './auth.constants';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 
@@ -32,12 +36,16 @@ export class AuthController {
 
   @Public()
   @Post('refresh')
-  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const rawToken: string | undefined = req.cookies?.[REFRESH_COOKIE_NAME];
     if (!rawToken) {
       throw new UnauthorizedException('Phiên đăng nhập không hợp lệ');
     }
-    const { accessToken, refreshToken, user } = await this.authService.refresh(rawToken);
+    const { accessToken, refreshToken, user } =
+      await this.authService.refresh(rawToken);
     this.setRefreshCookie(res, refreshToken);
     return { accessToken, user };
   }

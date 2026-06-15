@@ -53,7 +53,8 @@ export class ComponentsController {
   async getTemplate(@Res() res: Response) {
     const buffer = await this.componentsService.buildImportTemplate();
     res.set({
-      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'Content-Disposition': 'attachment; filename="components-template.xlsx"',
     });
     res.send(buffer);

@@ -92,7 +92,8 @@ export class PersonnelController {
   @RequirePermission(ScreenKey.PERSONNEL, 'delete')
   async remove(
     @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() currentUser: { sub: number; email: string; isAdmin: boolean },
+    @CurrentUser()
+    currentUser: { sub: number; email: string; isAdmin: boolean },
   ) {
     if (currentUser.sub === id) {
       throw new BadRequestException('Không thể tự xóa chính mình');

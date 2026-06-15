@@ -303,7 +303,9 @@ export default function ComponentsPage() {
               importUrl={ENDPOINTS.components.import}
               templateFileName="component_template.xlsx"
               onDone={() =>
-                void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.components() })
+                void queryClient.invalidateQueries({
+                  queryKey: QUERY_KEYS.components(),
+                })
               }
             />
           )}
@@ -338,7 +340,10 @@ export default function ComponentsPage() {
       <Modal
         title={editingComponent ? 'Sửa mã' : 'Thêm mã'}
         open={modalOpen}
-        onCancel={() => { setModalOpen(false); setPrefillCode(undefined) }}
+        onCancel={() => {
+          setModalOpen(false)
+          setPrefillCode(undefined)
+        }}
         onOk={handleModalOk}
         okText="Lưu"
         cancelText="Hủy"

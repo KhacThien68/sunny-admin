@@ -8,7 +8,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, IsNull, Not, Repository } from 'typeorm';
 import { ComponentEntity, Mob } from '../components/component.entity';
 import { User } from '../users/user.entity';
-import { AddMemberDto, AddScopeDto, CreateTeamDto, UpdateTeamDto } from './dto/team.dto';
+import {
+  AddMemberDto,
+  AddScopeDto,
+  CreateTeamDto,
+  UpdateTeamDto,
+} from './dto/team.dto';
 import { PurchasingTeamMember } from './team-member.entity';
 import { PurchasingTeamScope } from './team-scope.entity';
 import { PurchasingTeam } from './team.entity';
@@ -69,25 +74,31 @@ export class PurchasingTeamsService {
     const teamIds = teams.map((t) => t.id);
 
     // Count members per team (single query)
-    const memberCounts: { teamId: number; count: string }[] = await this.memberRepo
-      .createQueryBuilder('m')
-      .select('m.teamId', 'teamId')
-      .addSelect('COUNT(m.id)', 'count')
-      .where('m.teamId IN (:...teamIds)', { teamIds })
-      .groupBy('m.teamId')
-      .getRawMany();
+    const memberCounts: { teamId: number; count: string }[] =
+      await this.memberRepo
+        .createQueryBuilder('m')
+        .select('m.teamId', 'teamId')
+        .addSelect('COUNT(m.id)', 'count')
+        .where('m.teamId IN (:...teamIds)', { teamIds })
+        .groupBy('m.teamId')
+        .getRawMany();
 
     // Count scopes per team (single query)
-    const scopeCounts: { teamId: number; count: string }[] = await this.scopeRepo
-      .createQueryBuilder('s')
-      .select('s.teamId', 'teamId')
-      .addSelect('COUNT(s.id)', 'count')
-      .where('s.teamId IN (:...teamIds)', { teamIds })
-      .groupBy('s.teamId')
-      .getRawMany();
+    const scopeCounts: { teamId: number; count: string }[] =
+      await this.scopeRepo
+        .createQueryBuilder('s')
+        .select('s.teamId', 'teamId')
+        .addSelect('COUNT(s.id)', 'count')
+        .where('s.teamId IN (:...teamIds)', { teamIds })
+        .groupBy('s.teamId')
+        .getRawMany();
 
-    const memberMap = new Map(memberCounts.map((r) => [r.teamId, parseInt(r.count, 10)]));
-    const scopeMap = new Map(scopeCounts.map((r) => [r.teamId, parseInt(r.count, 10)]));
+    const memberMap = new Map(
+      memberCounts.map((r) => [r.teamId, parseInt(r.count, 10)]),
+    );
+    const scopeMap = new Map(
+      scopeCounts.map((r) => [r.teamId, parseInt(r.count, 10)]),
+    );
 
     return teams.map((t) => ({
       id: t.id,
@@ -220,7 +231,10 @@ export class PurchasingTeamsService {
 
   // ── Members ───────────────────────────────────────────────────────────────────
 
-  async addMember(teamId: number, dto: AddMemberDto): Promise<PurchasingTeamMember> {
+  async addMember(
+    teamId: number,
+    dto: AddMemberDto,
+  ): Promise<PurchasingTeamMember> {
     const team = await this.teamRepo.findOne({ where: { id: teamId } });
     if (!team) {
       throw new NotFoundException('Không tìm thấy team');
@@ -254,14 +268,19 @@ export class PurchasingTeamsService {
 
   // ── Scopes ────────────────────────────────────────────────────────────────────
 
-  async addScope(teamId: number, dto: AddScopeDto): Promise<PurchasingTeamScope> {
+  async addScope(
+    teamId: number,
+    dto: AddScopeDto,
+  ): Promise<PurchasingTeamScope> {
     const team = await this.teamRepo.findOne({ where: { id: teamId } });
     if (!team) {
       throw new NotFoundException('Không tìm thấy team');
     }
 
-    const hasClassification = dto.classification != null && dto.classification.trim() !== '';
-    const hasComponentCode = dto.componentCode != null && dto.componentCode.trim() !== '';
+    const hasClassification =
+      dto.classification != null && dto.classification.trim() !== '';
+    const hasComponentCode =
+      dto.componentCode != null && dto.componentCode.trim() !== '';
 
     // XOR: exactly one must be provided
     if (hasClassification === hasComponentCode) {
@@ -339,7 +358,10 @@ export class PurchasingTeamsService {
     // Filter out those covered by any scope
     return purchasableComponents.filter((c) => {
       // Covered by classification scope
-      if (c.classification != null && coveredClassifications.has(c.classification)) {
+      if (
+        c.classification != null &&
+        coveredClassifications.has(c.classification)
+      ) {
         return false;
       }
       // Covered by code scope

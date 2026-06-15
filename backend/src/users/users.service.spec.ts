@@ -86,7 +86,9 @@ describe('UsersService', () => {
       const result = await service.findByEmailWithPassword(email);
 
       expect(mockRepo.createQueryBuilder).toHaveBeenCalledWith('user');
-      expect(mockQueryBuilder.addSelect).toHaveBeenCalledWith('user.passwordHash');
+      expect(mockQueryBuilder.addSelect).toHaveBeenCalledWith(
+        'user.passwordHash',
+      );
       expect(mockQueryBuilder.where).toHaveBeenCalledWith(
         'user.email = :email',
         { email },

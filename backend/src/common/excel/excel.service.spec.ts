@@ -5,7 +5,9 @@ import { ColumnSpec, ExcelService, SheetSpec } from './excel.service';
 /**
  * Helper: build an Excel buffer from a 2D array (first row = headers).
  */
-async function buildBuffer(rows: (string | number | null)[][]): Promise<Buffer> {
+async function buildBuffer(
+  rows: (string | number | null)[][],
+): Promise<Buffer> {
   const wb = new ExcelJS.Workbook();
   const ws = wb.addWorksheet('Sheet1');
   for (const row of rows) {
@@ -67,23 +69,39 @@ describe('ExcelService', () => {
         ['COMP-002', 'KG', 10, 'INACTIVE'],
       ]);
 
-      const result = await service.parse<Record<string, unknown>>(buf, basicSpec);
+      const result = await service.parse<Record<string, unknown>>(
+        buf,
+        basicSpec,
+      );
 
       expect(result.errors).toHaveLength(0);
       expect(result.rows).toHaveLength(2);
-      expect(result.rows[0]).toMatchObject({ code: 'COMP-001', uom: 'PC', qty: 5, status: 'ACTIVE' });
-      expect(result.rows[1]).toMatchObject({ code: 'COMP-002', uom: 'KG', qty: 10, status: 'INACTIVE' });
+      expect(result.rows[0]).toMatchObject({
+        code: 'COMP-001',
+        uom: 'PC',
+        qty: 5,
+        status: 'ACTIVE',
+      });
+      expect(result.rows[1]).toMatchObject({
+        code: 'COMP-002',
+        uom: 'KG',
+        qty: 10,
+        status: 'INACTIVE',
+      });
     });
 
     it('should skip blank rows and not count them as errors', async () => {
       const buf = await buildBuffer([
         ['Component', 'UoM', 'Qty', 'Status'],
         ['COMP-001', 'PC', null, null],
-        [null, null, null, null],    // blank row
+        [null, null, null, null], // blank row
         ['COMP-003', 'M', null, null],
       ]);
 
-      const result = await service.parse<Record<string, unknown>>(buf, basicSpec);
+      const result = await service.parse<Record<string, unknown>>(
+        buf,
+        basicSpec,
+      );
 
       expect(result.errors).toHaveLength(0);
       expect(result.rows).toHaveLength(2);
@@ -95,7 +113,10 @@ describe('ExcelService', () => {
         ['COMP-001', 'PC', 1, 'ACTIVE', 'ignored'],
       ]);
 
-      const result = await service.parse<Record<string, unknown>>(buf, basicSpec);
+      const result = await service.parse<Record<string, unknown>>(
+        buf,
+        basicSpec,
+      );
       expect(result.errors).toHaveLength(0);
       expect(result.rows[0]).not.toHaveProperty('Extra');
     });
@@ -135,10 +156,13 @@ describe('ExcelService', () => {
     it('should add RowError with correct row number and column header', async () => {
       const buf = await buildBuffer([
         ['Component', 'UoM', 'Qty', 'Status'],
-        [null, 'PC', null, null],   // "Component" missing → row 2 in Excel (row 1 = header)
+        [null, 'PC', null, null], // "Component" missing → row 2 in Excel (row 1 = header)
       ]);
 
-      const result = await service.parse<Record<string, unknown>>(buf, basicSpec);
+      const result = await service.parse<Record<string, unknown>>(
+        buf,
+        basicSpec,
+      );
 
       expect(result.errors).toHaveLength(1);
       expect(result.errors[0]).toMatchObject({
@@ -155,9 +179,16 @@ describe('ExcelService', () => {
         ['COMP-001', null, null, null],
       ]);
 
-      const result = await service.parse<Record<string, unknown>>(buf, basicSpec);
+      const result = await service.parse<Record<string, unknown>>(
+        buf,
+        basicSpec,
+      );
 
-      expect(result.errors.some((e) => e.column === 'UoM' && e.message === 'Thiếu giá trị')).toBe(true);
+      expect(
+        result.errors.some(
+          (e) => e.column === 'UoM' && e.message === 'Thiếu giá trị',
+        ),
+      ).toBe(true);
     });
   });
 
@@ -170,7 +201,10 @@ describe('ExcelService', () => {
         ['COMP-001', 'PC', 'not-a-number', null],
       ]);
 
-      const result = await service.parse<Record<string, unknown>>(buf, basicSpec);
+      const result = await service.parse<Record<string, unknown>>(
+        buf,
+        basicSpec,
+      );
 
       expect(result.errors).toHaveLength(1);
       expect(result.errors[0]).toMatchObject({
@@ -186,7 +220,10 @@ describe('ExcelService', () => {
         ['COMP-001', 'PC', '42', null],
       ]);
 
-      const result = await service.parse<Record<string, unknown>>(buf, basicSpec);
+      const result = await service.parse<Record<string, unknown>>(
+        buf,
+        basicSpec,
+      );
       expect(result.errors).toHaveLength(0);
       expect((result.rows[0] as any).qty).toBe(42);
     });
@@ -201,7 +238,10 @@ describe('ExcelService', () => {
         ['COMP-001', 'PC', null, 'UNKNOWN'],
       ]);
 
-      const result = await service.parse<Record<string, unknown>>(buf, basicSpec);
+      const result = await service.parse<Record<string, unknown>>(
+        buf,
+        basicSpec,
+      );
 
       expect(result.errors).toHaveLength(1);
       expect(result.errors[0]).toMatchObject({
@@ -217,7 +257,10 @@ describe('ExcelService', () => {
         ['COMP-001', 'PC', null, 'active'], // lowercase should match 'ACTIVE'
       ]);
 
-      const result = await service.parse<Record<string, unknown>>(buf, basicSpec);
+      const result = await service.parse<Record<string, unknown>>(
+        buf,
+        basicSpec,
+      );
       expect(result.errors).toHaveLength(0);
     });
 
@@ -227,7 +270,10 @@ describe('ExcelService', () => {
         ['COMP-001', 'PC', null, '  ACTIVE  '],
       ]);
 
-      const result = await service.parse<Record<string, unknown>>(buf, basicSpec);
+      const result = await service.parse<Record<string, unknown>>(
+        buf,
+        basicSpec,
+      );
       expect(result.errors).toHaveLength(0);
     });
   });
@@ -238,12 +284,15 @@ describe('ExcelService', () => {
     it('should collect errors from multiple rows and return correct row numbers', async () => {
       const buf = await buildBuffer([
         ['Component', 'UoM', 'Qty', 'Status'],
-        [null, 'PC', null, null],            // row 2: Component required
-        ['COMP-002', 'KG', 'bad', null],    // row 3: Qty not a number
-        ['COMP-003', 'M', null, null],       // row 4: valid
+        [null, 'PC', null, null], // row 2: Component required
+        ['COMP-002', 'KG', 'bad', null], // row 3: Qty not a number
+        ['COMP-003', 'M', null, null], // row 4: valid
       ]);
 
-      const result = await service.parse<Record<string, unknown>>(buf, basicSpec);
+      const result = await service.parse<Record<string, unknown>>(
+        buf,
+        basicSpec,
+      );
 
       expect(result.errors).toHaveLength(2);
       expect(result.errors.find((e) => e.row === 2)?.column).toBe('Component');

@@ -46,7 +46,8 @@ export class UsersController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateUserDto,
-    @CurrentUser() currentUser: { sub: number; email: string; isAdmin: boolean },
+    @CurrentUser()
+    currentUser: { sub: number; email: string; isAdmin: boolean },
   ) {
     // Self-protection: cannot demote or deactivate yourself
     if (currentUser.sub === id) {
@@ -74,7 +75,8 @@ export class UsersController {
   @RequirePermission(ScreenKey.USERS, 'delete')
   async remove(
     @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() currentUser: { sub: number; email: string; isAdmin: boolean },
+    @CurrentUser()
+    currentUser: { sub: number; email: string; isAdmin: boolean },
   ) {
     if (currentUser.sub === id) {
       throw new BadRequestException('Không thể tự xóa chính mình');

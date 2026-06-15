@@ -78,13 +78,15 @@ const makeDataSource = () => ({
   }),
 });
 
-function makeService(opts: {
-  teams?: any[];
-  members?: any[];
-  scopes?: any[];
-  users?: any[];
-  components?: any[];
-} = {}) {
+function makeService(
+  opts: {
+    teams?: any[];
+    members?: any[];
+    scopes?: any[];
+    users?: any[];
+    components?: any[];
+  } = {},
+) {
   const teamRepo = makeRepo(opts.teams ?? []);
   const memberRepo = makeRepo(opts.members ?? []);
   const scopeRepo = makeRepo(opts.scopes ?? []);
@@ -101,13 +103,20 @@ function makeService(opts: {
     dataSource as any,
   );
 
-  return { service, teamRepo, memberRepo, scopeRepo, userRepo, componentRepo, dataSource };
+  return {
+    service,
+    teamRepo,
+    memberRepo,
+    scopeRepo,
+    userRepo,
+    componentRepo,
+    dataSource,
+  };
 }
 
 // ── Tests ──────────────────────────────────────────────────────────────────────
 
 describe('PurchasingTeamsService', () => {
-
   // ── Scope XOR validation ───────────────────────────────────────────────────────
 
   describe('addScope — XOR validation', () => {
@@ -116,7 +125,10 @@ describe('PurchasingTeamsService', () => {
       teamRepo.findOne.mockResolvedValue(makeTeam(1, 'Team A'));
 
       await expect(
-        service.addScope(1, { classification: 'CAT-A', componentCode: 'COMP-001' }),
+        service.addScope(1, {
+          classification: 'CAT-A',
+          componentCode: 'COMP-001',
+        }),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -124,7 +136,9 @@ describe('PurchasingTeamsService', () => {
       const { service, teamRepo } = makeService();
       teamRepo.findOne.mockResolvedValue(makeTeam(1, 'Team A'));
 
-      await expect(service.addScope(1, {})).rejects.toThrow(BadRequestException);
+      await expect(service.addScope(1, {})).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('accepts when only classification provided', async () => {
@@ -140,7 +154,9 @@ describe('PurchasingTeamsService', () => {
     it('accepts when only componentCode provided and component exists', async () => {
       const { service, teamRepo, scopeRepo, componentRepo } = makeService();
       teamRepo.findOne.mockResolvedValue(makeTeam(1, 'Team A'));
-      componentRepo.findOne.mockResolvedValue(makeComponent(1, 'COMP-001', Mob.BAT_BUOC));
+      componentRepo.findOne.mockResolvedValue(
+        makeComponent(1, 'COMP-001', Mob.BAT_BUOC),
+      );
       scopeRepo.findOne.mockResolvedValue(null);
 
       const result = await service.addScope(1, { componentCode: 'COMP-001' });
@@ -192,7 +208,12 @@ describe('PurchasingTeamsService', () => {
       scopeRepo.find.mockResolvedValue([
         makeScope(1, 1, { classification: 'CAT-A' }),
       ]);
-      const purchasableComponent = makeComponent(1, 'COMP-001', Mob.CO_THE, 'CAT-A');
+      const purchasableComponent = makeComponent(
+        1,
+        'COMP-001',
+        Mob.CO_THE,
+        'CAT-A',
+      );
       const qb = {
         select: jest.fn().mockReturnThis(),
         addSelect: jest.fn().mockReturnThis(),
@@ -211,7 +232,12 @@ describe('PurchasingTeamsService', () => {
       scopeRepo.find.mockResolvedValue([
         makeScope(1, 1, { componentCode: 'COMP-001' }),
       ]);
-      const purchasableComponent = makeComponent(1, 'COMP-001', Mob.BAT_BUOC, null);
+      const purchasableComponent = makeComponent(
+        1,
+        'COMP-001',
+        Mob.BAT_BUOC,
+        null,
+      );
       const qb = {
         select: jest.fn().mockReturnThis(),
         addSelect: jest.fn().mockReturnThis(),
@@ -228,7 +254,12 @@ describe('PurchasingTeamsService', () => {
     it('includes purchasable components not covered by any scope', async () => {
       const { service, scopeRepo, componentRepo } = makeService();
       scopeRepo.find.mockResolvedValue([]); // no scopes
-      const purchasableComponent = makeComponent(1, 'COMP-001', Mob.BAT_BUOC, 'CAT-B');
+      const purchasableComponent = makeComponent(
+        1,
+        'COMP-001',
+        Mob.BAT_BUOC,
+        'CAT-B',
+      );
       const qb = {
         select: jest.fn().mockReturnThis(),
         addSelect: jest.fn().mockReturnThis(),
@@ -253,12 +284,12 @@ describe('PurchasingTeamsService', () => {
       userRepo.findOne.mockResolvedValue(makeUser(1, 'user@test.com'));
       memberRepo.findOne.mockResolvedValue(makeScope(10, 1)); // already exists
 
-      await expect(
-        service.addMember(1, { userId: 1 }),
-      ).rejects.toThrow(ConflictException);
-      await expect(
-        service.addMember(1, { userId: 1 }),
-      ).rejects.toThrow('Nhân sự đã ở trong team');
+      await expect(service.addMember(1, { userId: 1 })).rejects.toThrow(
+        ConflictException,
+      );
+      await expect(service.addMember(1, { userId: 1 })).rejects.toThrow(
+        'Nhân sự đã ở trong team',
+      );
     });
 
     it('throws NotFoundException when user does not exist', async () => {
@@ -266,9 +297,9 @@ describe('PurchasingTeamsService', () => {
       teamRepo.findOne.mockResolvedValue(makeTeam(1, 'Team A'));
       userRepo.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.addMember(1, { userId: 999 }),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.addMember(1, { userId: 999 })).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -342,7 +373,9 @@ describe('PersonnelImportService', () => {
       const result = await service.importFromExcel(buf, 'preview');
 
       expect(result.errors.length).toBeGreaterThan(0);
-      const emailError = result.errors.find((e) => e.message === 'Email không hợp lệ');
+      const emailError = result.errors.find(
+        (e) => e.message === 'Email không hợp lệ',
+      );
       expect(emailError).toBeDefined();
       expect(emailError!.row).toBe(2); // row 1 = headers, row 2 = first data row
     });

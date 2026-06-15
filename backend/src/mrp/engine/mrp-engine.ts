@@ -153,9 +153,7 @@ export function applyPurchaseEdit(
   }
   // CO_THE only from here
   if (purchase < 0 || (purchase > 0 && purchase < c.moq)) {
-    throw new Error(
-      `Số lượng mua phải bằng 0 hoặc ≥ MoQ (${c.moq})`,
-    );
+    throw new Error(`Số lượng mua phải bằng 0 hoặc ≥ MoQ (${c.moq})`);
   }
 
   const newPurchase = round4(purchase);

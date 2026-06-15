@@ -37,7 +37,8 @@ export class BomController {
   async getTemplate(@Res() res: Response) {
     const buffer = await this.bomService.buildImportTemplate();
     res.set({
-      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'Content-Disposition': 'attachment; filename="bom-template.xlsx"',
     });
     res.send(buffer);
@@ -80,10 +81,7 @@ export class BomController {
 
   @Patch(':id')
   @RequirePermission(ScreenKey.BOM, 'update')
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateBomLineDto,
-  ) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateBomLineDto) {
     return this.bomService.update(id, dto);
   }
 

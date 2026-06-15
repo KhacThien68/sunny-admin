@@ -81,9 +81,10 @@ export class MrpService {
     const aggCodes = aggregation.lines.map((l) => l.componentCode);
 
     // 2. Validate all codes registered in components
-    const codeMap = aggCodes.length > 0
-      ? await this.componentsService.getCodeMap(aggCodes)
-      : new Map();
+    const codeMap =
+      aggCodes.length > 0
+        ? await this.componentsService.getCodeMap(aggCodes)
+        : new Map();
 
     const missingCodes = aggCodes.filter((c) => !codeMap.has(c));
     if (missingCodes.length > 0) {
@@ -138,38 +139,40 @@ export class MrpService {
     );
 
     // 8. Persist in transaction
-    const result = await this.dataSource.transaction(async (em: EntityManager) => {
-      const runEm = em.getRepository(MrpRun);
-      const lineEm = em.getRepository(MrpLine);
+    const result = await this.dataSource.transaction(
+      async (em: EntityManager) => {
+        const runEm = em.getRepository(MrpRun);
+        const lineEm = em.getRepository(MrpLine);
 
-      const run = runEm.create({
-        aggregationId: aggregation.id,
-        status: MrpRunStatus.RUNNING,
-        currentRound: 1,
-        createdById: userId,
-      });
-      const savedRun = await runEm.save(run);
-
-      const lines: MrpLine[] = [];
-      for (const el of engineLines) {
-        const line = lineEm.create({
-          runId: savedRun.id,
-          round: 1,
-          componentCode: el.code,
-          orderQty: el.orderQty,
-          onhand: el.onhand,
-          levels: el.levels,
-          demand: el.demand,
-          purchase: el.purchase,
-          manufacturing: el.manufacturing,
-          recovery: el.recovery,
-          locked: false,
+        const run = runEm.create({
+          aggregationId: aggregation.id,
+          status: MrpRunStatus.RUNNING,
+          currentRound: 1,
+          createdById: userId,
         });
-        lines.push(await lineEm.save(line));
-      }
+        const savedRun = await runEm.save(run);
 
-      return { run: savedRun, lines };
-    });
+        const lines: MrpLine[] = [];
+        for (const el of engineLines) {
+          const line = lineEm.create({
+            runId: savedRun.id,
+            round: 1,
+            componentCode: el.code,
+            orderQty: el.orderQty,
+            onhand: el.onhand,
+            levels: el.levels,
+            demand: el.demand,
+            purchase: el.purchase,
+            manufacturing: el.manufacturing,
+            recovery: el.recovery,
+            locked: false,
+          });
+          lines.push(await lineEm.save(line));
+        }
+
+        return { run: savedRun, lines };
+      },
+    );
 
     return { ...result, warnings };
   }
@@ -206,9 +209,10 @@ export class MrpService {
     });
 
     const allCodes = [...new Set(lines.map((l) => l.componentCode))];
-    const codeMap = allCodes.length > 0
-      ? await this.componentsService.getCodeMap(allCodes)
-      : new Map();
+    const codeMap =
+      allCodes.length > 0
+        ? await this.componentsService.getCodeMap(allCodes)
+        : new Map();
 
     // Group by round
     const roundMap = new Map<number, MrpLine[]>();
@@ -334,7 +338,9 @@ export class MrpService {
     const allEdges = await this.bomService.getAllEdges();
 
     // Convert MrpLine[] to EngineLine[] for engine functions
-    const toEngineLines = (lines: MrpLine[]): import('./engine/mrp-engine').EngineLine[] =>
+    const toEngineLines = (
+      lines: MrpLine[],
+    ): import('./engine/mrp-engine').EngineLine[] =>
       lines.map((l) => ({
         code: l.componentCode,
         orderQty: l.orderQty,
@@ -347,7 +353,10 @@ export class MrpService {
       }));
 
     // Explode current round → next demands
-    const nextDemands = explodeNextDemands(toEngineLines(currentRoundLines), allEdges);
+    const nextDemands = explodeNextDemands(
+      toEngineLines(currentRoundLines),
+      allEdges,
+    );
 
     await this.dataSource.transaction(async (em: EntityManager) => {
       const runEm = em.getRepository(MrpRun);
@@ -357,7 +366,10 @@ export class MrpService {
       await lineEm.update({ runId, round: run.currentRound }, { locked: true });
 
       // Check finish conditions
-      if (nextDemands.length === 0 || isFinished(toEngineLines(currentRoundLines), run.currentRound)) {
+      if (
+        nextDemands.length === 0 ||
+        isFinished(toEngineLines(currentRoundLines), run.currentRound)
+      ) {
         run.status = MrpRunStatus.DONE;
         await runEm.save(run);
         return;
@@ -374,7 +386,9 @@ export class MrpService {
       }
 
       // Build purchasedBefore: sum of purchase per code across all locked rounds
-      const allLockedLines = await lineEm.find({ where: { runId, locked: true } });
+      const allLockedLines = await lineEm.find({
+        where: { runId, locked: true },
+      });
       const purchasedBefore = new Map<string, number>();
       for (const l of allLockedLines) {
         purchasedBefore.set(

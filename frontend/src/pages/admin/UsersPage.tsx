@@ -15,12 +15,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { usePermission } from '../../hooks/usePermission'
 import { useAuth } from '../../stores/auth'
-import {
-  getUsers,
-  createUser,
-  updateUser,
-  deleteUser,
-} from '../../api/users'
+import { getUsers, createUser, updateUser, deleteUser } from '../../api/users'
 import type { User } from '../../types'
 import { QUERY_KEYS } from '../../constants/queryKeys'
 import { getErrorMessage } from '../../utils/errorMessage'
@@ -60,8 +55,7 @@ export default function UsersPage() {
     const q = search.toLowerCase()
     return data.filter(
       (u) =>
-        u.name.toLowerCase().includes(q) ||
-        u.email.toLowerCase().includes(q),
+        u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q),
     )
   }, [data, search])
 
@@ -338,7 +332,9 @@ export default function UsersPage() {
 
           <Form.Item
             name="password"
-            label={isEditing ? 'Mật khẩu mới (để trống nếu giữ nguyên)' : 'Mật khẩu'}
+            label={
+              isEditing ? 'Mật khẩu mới (để trống nếu giữ nguyên)' : 'Mật khẩu'
+            }
             rules={
               isEditing
                 ? [
@@ -353,7 +349,11 @@ export default function UsersPage() {
                   ]
             }
           >
-            <Input.Password placeholder={isEditing ? 'Để trống nếu không đổi' : 'Tối thiểu 6 ký tự'} />
+            <Input.Password
+              placeholder={
+                isEditing ? 'Để trống nếu không đổi' : 'Tối thiểu 6 ký tự'
+              }
+            />
           </Form.Item>
 
           <Form.Item name="position" label="Chức vụ">
@@ -368,7 +368,11 @@ export default function UsersPage() {
             <Input placeholder="0901234567" />
           </Form.Item>
 
-          <Form.Item name="isAdmin" label="Quản trị viên" valuePropName="checked">
+          <Form.Item
+            name="isAdmin"
+            label="Quản trị viên"
+            valuePropName="checked"
+          >
             <Switch />
           </Form.Item>
 

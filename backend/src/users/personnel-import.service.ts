@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, EntityManager } from 'typeorm';
-import { ExcelService, RowError, SheetSpec } from '../common/excel/excel.service';
+import {
+  ExcelService,
+  RowError,
+  SheetSpec,
+} from '../common/excel/excel.service';
 import { User } from './user.entity';
 
 export interface PersonnelImportResult {

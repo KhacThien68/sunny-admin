@@ -75,7 +75,9 @@ const PSI_COLUMNS: ColumnsType<PsiItem> = [
 ]
 
 export default function PsiPage() {
-  const [selectedRunId, setSelectedRunId] = useState<number | undefined>(undefined)
+  const [selectedRunId, setSelectedRunId] = useState<number | undefined>(
+    undefined,
+  )
 
   // Load runs list to initialize selector
   const { data: runs = [] } = useQuery({

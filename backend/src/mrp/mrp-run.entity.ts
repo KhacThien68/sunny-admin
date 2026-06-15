@@ -39,25 +39,60 @@ export class MrpLine {
 
   @Column() componentCode: string;
 
-  @Column({ type: 'decimal', precision: 18, scale: 4, transformer: decimalToNumber })
+  @Column({
+    type: 'decimal',
+    precision: 18,
+    scale: 4,
+    transformer: decimalToNumber,
+  })
   orderQty: number;
 
-  @Column({ type: 'decimal', precision: 18, scale: 4, transformer: decimalToNumber })
+  @Column({
+    type: 'decimal',
+    precision: 18,
+    scale: 4,
+    transformer: decimalToNumber,
+  })
   onhand: number;
 
-  @Column({ type: 'decimal', precision: 18, scale: 4, transformer: decimalToNumber })
+  @Column({
+    type: 'decimal',
+    precision: 18,
+    scale: 4,
+    transformer: decimalToNumber,
+  })
   levels: number;
 
-  @Column({ type: 'decimal', precision: 18, scale: 4, transformer: decimalToNumber })
+  @Column({
+    type: 'decimal',
+    precision: 18,
+    scale: 4,
+    transformer: decimalToNumber,
+  })
   demand: number;
 
-  @Column({ type: 'decimal', precision: 18, scale: 4, transformer: decimalToNumber })
+  @Column({
+    type: 'decimal',
+    precision: 18,
+    scale: 4,
+    transformer: decimalToNumber,
+  })
   purchase: number;
 
-  @Column({ type: 'decimal', precision: 18, scale: 4, transformer: decimalToNumber })
+  @Column({
+    type: 'decimal',
+    precision: 18,
+    scale: 4,
+    transformer: decimalToNumber,
+  })
   manufacturing: number;
 
-  @Column({ type: 'decimal', precision: 18, scale: 4, transformer: decimalToNumber })
+  @Column({
+    type: 'decimal',
+    precision: 18,
+    scale: 4,
+    transformer: decimalToNumber,
+  })
   recovery: number;
 
   @Column({ default: false }) locked: boolean;

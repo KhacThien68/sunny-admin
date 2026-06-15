@@ -104,28 +104,32 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException with correct message for inactive user', async () => {
-      usersService.findByEmailWithPassword.mockResolvedValue(inactiveUser as any);
+      usersService.findByEmailWithPassword.mockResolvedValue(
+        inactiveUser as any,
+      );
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
 
-      await expect(service.login('admin@sunny.local', 'admin123')).rejects.toThrow(
-        new UnauthorizedException(ERROR_MSG),
-      );
+      await expect(
+        service.login('admin@sunny.local', 'admin123'),
+      ).rejects.toThrow(new UnauthorizedException(ERROR_MSG));
     });
 
     it('should throw UnauthorizedException with correct message when passwordHash is null', async () => {
-      usersService.findByEmailWithPassword.mockResolvedValue(noPasswordUser as any);
-
-      await expect(service.login('admin@sunny.local', 'admin123')).rejects.toThrow(
-        new UnauthorizedException(ERROR_MSG),
+      usersService.findByEmailWithPassword.mockResolvedValue(
+        noPasswordUser as any,
       );
+
+      await expect(
+        service.login('admin@sunny.local', 'admin123'),
+      ).rejects.toThrow(new UnauthorizedException(ERROR_MSG));
     });
 
     it('should throw UnauthorizedException with correct message when user not found', async () => {
       usersService.findByEmailWithPassword.mockResolvedValue(null);
 
-      await expect(service.login('unknown@example.com', 'pass')).rejects.toThrow(
-        new UnauthorizedException(ERROR_MSG),
-      );
+      await expect(
+        service.login('unknown@example.com', 'pass'),
+      ).rejects.toThrow(new UnauthorizedException(ERROR_MSG));
     });
   });
 
@@ -142,7 +146,9 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException for unknown token', async () => {
       tokenRepo.findOne.mockResolvedValue(null);
 
-      await expect(service.refresh(rawToken)).rejects.toThrow(UnauthorizedException);
+      await expect(service.refresh(rawToken)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw UnauthorizedException when parallel refresh races (update returns affected: 0)', async () => {
@@ -150,7 +156,9 @@ describe('AuthService', () => {
       usersService.findById.mockResolvedValue(activeUser as any);
       tokenRepo.update.mockResolvedValue({ affected: 0 });
 
-      await expect(service.refresh(rawToken)).rejects.toThrow(UnauthorizedException);
+      await expect(service.refresh(rawToken)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw UnauthorizedException when update affected is undefined (race condition)', async () => {
@@ -158,14 +166,18 @@ describe('AuthService', () => {
       usersService.findById.mockResolvedValue(activeUser as any);
       tokenRepo.update.mockResolvedValue({ affected: undefined });
 
-      await expect(service.refresh(rawToken)).rejects.toThrow(UnauthorizedException);
+      await expect(service.refresh(rawToken)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw UnauthorizedException when user became inactive', async () => {
       tokenRepo.findOne.mockResolvedValue(storedToken);
       usersService.findById.mockResolvedValue(inactiveUser as any);
 
-      await expect(service.refresh(rawToken)).rejects.toThrow(UnauthorizedException);
+      await expect(service.refresh(rawToken)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should rotate token: revoke old, save new, return new accessToken and refreshToken', async () => {

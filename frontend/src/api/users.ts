@@ -14,7 +14,10 @@ export async function createUser(body: CreateUserBody): Promise<User> {
   return res.data
 }
 
-export async function updateUser(id: number, body: UpdateUserBody): Promise<User> {
+export async function updateUser(
+  id: number,
+  body: UpdateUserBody,
+): Promise<User> {
   const res = await apiClient.patch<User>(ENDPOINTS.users.byId(id), body)
   return res.data
 }

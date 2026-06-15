@@ -7,7 +7,9 @@ import { ComponentEntity, Mob } from './component.entity';
 import { ComponentsService } from './components.service';
 import { CreateComponentDto } from './dto/component.dto';
 
-const makeComponent = (overrides: Partial<ComponentEntity> = {}): ComponentEntity => ({
+const makeComponent = (
+  overrides: Partial<ComponentEntity> = {},
+): ComponentEntity => ({
   id: 1,
   code: 'COMP-001',
   classification: 'TypeA',
@@ -144,7 +146,10 @@ describe('ComponentsService', () => {
 
   describe('findAll', () => {
     it('should return paginated result with default page and pageSize', async () => {
-      const components = [makeComponent(), makeComponent({ id: 2, code: 'COMP-002' })];
+      const components = [
+        makeComponent(),
+        makeComponent({ id: 2, code: 'COMP-002' }),
+      ];
       mockQb.getManyAndCount.mockResolvedValue([components, 2]);
 
       const result = await service.findAll({});
@@ -197,7 +202,9 @@ describe('ComponentsService', () => {
 
     it('should delete successfully when bom_lines table does not exist (skip check)', async () => {
       mockRepo.findOne.mockResolvedValue(makeComponent());
-      mockDataSource.query.mockRejectedValue(new Error("Table 'bom_lines' doesn't exist"));
+      mockDataSource.query.mockRejectedValue(
+        new Error("Table 'bom_lines' doesn't exist"),
+      );
       mockRepo.delete.mockResolvedValue({ affected: 1 });
 
       await expect(service.remove(1)).resolves.toBeUndefined();

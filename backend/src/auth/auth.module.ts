@@ -6,10 +6,7 @@ import { AuthService } from './auth.service';
 import { RefreshToken } from './refresh-token.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([RefreshToken]),
-    UsersModule,
-  ],
+  imports: [TypeOrmModule.forFeature([RefreshToken]), UsersModule],
   controllers: [AuthController],
   providers: [AuthService],
 })

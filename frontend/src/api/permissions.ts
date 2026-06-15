@@ -9,8 +9,12 @@ export async function getScreens(): Promise<Screen[]> {
   return res.data
 }
 
-export async function getUserPermissions(userId: number): Promise<PermissionEntry[]> {
-  const res = await apiClient.get<PermissionEntry[]>(ENDPOINTS.permissions.byUser(userId))
+export async function getUserPermissions(
+  userId: number,
+): Promise<PermissionEntry[]> {
+  const res = await apiClient.get<PermissionEntry[]>(
+    ENDPOINTS.permissions.byUser(userId),
+  )
   return res.data
 }
 
@@ -18,6 +22,9 @@ export async function putUserPermissions(
   userId: number,
   entries: PermissionEntry[],
 ): Promise<PermissionEntry[]> {
-  const res = await apiClient.put<PermissionEntry[]>(ENDPOINTS.permissions.byUser(userId), entries)
+  const res = await apiClient.put<PermissionEntry[]>(
+    ENDPOINTS.permissions.byUser(userId),
+    entries,
+  )
   return res.data
 }

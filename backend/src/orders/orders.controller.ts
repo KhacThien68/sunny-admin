@@ -44,7 +44,8 @@ export class OrdersController {
   async getTemplate(@Res() res: Response) {
     const buffer = await this.ordersService.buildImportTemplate();
     res.set({
-      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'Content-Disposition': 'attachment; filename="orders-template.xlsx"',
     });
     res.send(buffer);
@@ -61,12 +62,18 @@ export class OrdersController {
     if (!file || !file.originalname.toLowerCase().endsWith('.xlsx')) {
       throw new BadRequestException('Vui lòng chọn file .xlsx');
     }
-    return this.ordersService.importFromExcel(file.buffer, mode, user?.sub ?? 0);
+    return this.ordersService.importFromExcel(
+      file.buffer,
+      mode,
+      user?.sub ?? 0,
+    );
   }
 
   @Post('aggregate')
   @RequirePermission(ScreenKey.ORDERS, 'create')
-  aggregate(@CurrentUser() user: { sub: number; email: string; isAdmin: boolean }) {
+  aggregate(
+    @CurrentUser() user: { sub: number; email: string; isAdmin: boolean },
+  ) {
     return this.ordersService.aggregate(user.sub);
   }
 
@@ -97,10 +104,7 @@ export class OrdersController {
 
   @Patch(':id')
   @RequirePermission(ScreenKey.ORDERS, 'update')
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateOrderDto,
-  ) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateOrderDto) {
     return this.ordersService.update(id, dto);
   }
 

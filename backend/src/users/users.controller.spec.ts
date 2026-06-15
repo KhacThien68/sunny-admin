@@ -1,7 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-} from '@nestjs/common';
+import { BadRequestException, ConflictException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { PersonnelController } from './personnel.controller';
@@ -48,7 +45,9 @@ describe('UsersController', () => {
           provide: PersonnelImportService,
           useValue: {
             buildImportTemplate: jest.fn().mockResolvedValue(Buffer.from('')),
-            importFromExcel: jest.fn().mockResolvedValue({ valid: 0, errors: [], committed: false }),
+            importFromExcel: jest
+              .fn()
+              .mockResolvedValue({ valid: 0, errors: [], committed: false }),
           },
         },
       ],
@@ -79,7 +78,10 @@ describe('UsersController', () => {
 
       // passwordHash must be present and must be a bcrypt hash of the raw password
       expect(callArg).toHaveProperty('passwordHash');
-      const hashMatches = await bcrypt.compare('secret123', callArg.passwordHash as string);
+      const hashMatches = await bcrypt.compare(
+        'secret123',
+        callArg.passwordHash as string,
+      );
       expect(hashMatches).toBe(true);
     });
 
@@ -92,7 +94,9 @@ describe('UsersController', () => {
         password: 'secret123',
       };
 
-      await expect(usersController.create(dto)).rejects.toThrow(ConflictException);
+      await expect(usersController.create(dto)).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 
@@ -101,18 +105,18 @@ describe('UsersController', () => {
       const dto: UpdateUserDto = { isActive: false };
       const selfUser = { sub: 2, email: 'test@example.com', isAdmin: false };
 
-      await expect(
-        usersController.update(2, dto, selfUser),
-      ).rejects.toThrow(BadRequestException);
+      await expect(usersController.update(2, dto, selfUser)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw BadRequestException when user sets own isAdmin=false', async () => {
       const dto: UpdateUserDto = { isAdmin: false };
       const selfUser = { sub: 2, email: 'test@example.com', isAdmin: true };
 
-      await expect(
-        usersController.update(2, dto, selfUser),
-      ).rejects.toThrow(BadRequestException);
+      await expect(usersController.update(2, dto, selfUser)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should allow admin updating another user isActive', async () => {

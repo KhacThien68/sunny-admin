@@ -30,7 +30,10 @@ import {
 } from '../../api/purchasingTeams'
 import type { TeamMember, TeamScope } from '../../types'
 import { getPersonnel } from '../../api/personnel'
-import { getComponentClassifications, getComponents } from '../../api/components'
+import {
+  getComponentClassifications,
+  getComponents,
+} from '../../api/components'
 import { QUERY_KEYS } from '../../constants/queryKeys'
 import { getErrorMessage } from '../../utils/errorMessage'
 
@@ -47,13 +50,19 @@ export default function TeamDetailPage() {
   const { canUpdate } = usePermission('PURCHASING_TEAMS')
 
   // Member select state
-  const [selectedUserId, setSelectedUserId] = useState<number | undefined>(undefined)
+  const [selectedUserId, setSelectedUserId] = useState<number | undefined>(
+    undefined,
+  )
 
   // Scope modal state
   const [scopeModalOpen, setScopeModalOpen] = useState(false)
   const [scopeMode, setScopeMode] = useState<ScopeMode>('classification')
-  const [scopeClassification, setScopeClassification] = useState<string | undefined>(undefined)
-  const [scopeComponentCode, setScopeComponentCode] = useState<string | undefined>(undefined)
+  const [scopeClassification, setScopeClassification] = useState<
+    string | undefined
+  >(undefined)
+  const [scopeComponentCode, setScopeComponentCode] = useState<
+    string | undefined
+  >(undefined)
   const [componentSearch, setComponentSearch] = useState('')
 
   // ── Queries ────────────────────────────────────────────────────────────────
@@ -68,7 +77,8 @@ export default function TeamDetailPage() {
     enabled: !isNaN(teamId),
     retry: (failureCount, error) => {
       // Don't retry on 404
-      const status = (error as { response?: { status?: number } })?.response?.status
+      const status = (error as { response?: { status?: number } })?.response
+        ?.status
       if (status === 404) return false
       return failureCount < 3
     },
@@ -98,8 +108,12 @@ export default function TeamDetailPage() {
     onSuccess: () => {
       void message.success('Đã thêm nhân sự')
       setSelectedUserId(undefined)
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeam(teamId) })
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeams })
+      void queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.purchasingTeam(teamId),
+      })
+      void queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.purchasingTeams,
+      })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi thêm nhân sự'))
@@ -110,8 +124,12 @@ export default function TeamDetailPage() {
     mutationFn: (memberId: number) => removeTeamMember(teamId, memberId),
     onSuccess: () => {
       void message.success('Đã xóa thành viên')
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeam(teamId) })
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeams })
+      void queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.purchasingTeam(teamId),
+      })
+      void queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.purchasingTeams,
+      })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi xóa thành viên'))
@@ -124,9 +142,15 @@ export default function TeamDetailPage() {
     onSuccess: () => {
       void message.success('Đã thêm phạm vi')
       closeScopeModal()
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeam(teamId) })
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeams })
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.unassignedComponents })
+      void queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.purchasingTeam(teamId),
+      })
+      void queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.purchasingTeams,
+      })
+      void queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.unassignedComponents,
+      })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi thêm phạm vi'))
@@ -137,9 +161,15 @@ export default function TeamDetailPage() {
     mutationFn: (scopeId: number) => removeTeamScope(teamId, scopeId),
     onSuccess: () => {
       void message.success('Đã xóa phạm vi')
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeam(teamId) })
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeams })
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.unassignedComponents })
+      void queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.purchasingTeam(teamId),
+      })
+      void queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.purchasingTeams,
+      })
+      void queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.unassignedComponents,
+      })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi xóa phạm vi'))
@@ -313,7 +343,10 @@ export default function TeamDetailPage() {
           {team.name}
         </Title>
         {team.description && (
-          <Typography.Paragraph type="secondary" style={{ marginTop: 4, marginBottom: 0 }}>
+          <Typography.Paragraph
+            type="secondary"
+            style={{ marginTop: 4, marginBottom: 0 }}
+          >
             {team.description}
           </Typography.Paragraph>
         )}

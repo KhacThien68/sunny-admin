@@ -1,7 +1,9 @@
 export const QUERY_KEYS = {
   // Components
   components: (params?: unknown) =>
-    params === undefined ? (['components'] as const) : (['components', params] as const),
+    params === undefined
+      ? (['components'] as const)
+      : (['components', params] as const),
   classifications: ['components', 'classifications'] as const,
   componentsSearch: (search: string) => ['components-search', search] as const,
 

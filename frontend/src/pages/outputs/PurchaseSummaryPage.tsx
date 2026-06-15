@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react'
 import { Typography, Space, Card, Table, Empty } from 'antd'
 import { useQuery } from '@tanstack/react-query'
 import type { ColumnsType } from 'antd/es/table'
-import { getOutputRuns, getPurchaseSummary, getRecoverySummary } from '../../api/outputs'
+import {
+  getOutputRuns,
+  getPurchaseSummary,
+  getRecoverySummary,
+} from '../../api/outputs'
 import type { PurchaseSummaryItem, OutputRunInfo } from '../../types'
 import { QUERY_KEYS } from '../../constants/queryKeys'
 import RunSelector from './RunSelector'
@@ -14,7 +18,9 @@ function formatNum(n: number): string {
   return n.toLocaleString('vi-VN', { maximumFractionDigits: 4 })
 }
 
-function buildColumns(run: OutputRunInfo | undefined): ColumnsType<PurchaseSummaryItem> {
+function buildColumns(
+  run: OutputRunInfo | undefined,
+): ColumnsType<PurchaseSummaryItem> {
   const fixed: ColumnsType<PurchaseSummaryItem> = [
     {
       title: 'Mã',
@@ -56,19 +62,18 @@ function buildColumns(run: OutputRunInfo | undefined): ColumnsType<PurchaseSumma
     },
   ]
 
-  const dynamic: ColumnsType<PurchaseSummaryItem> =
-    run
-      ? [...run.rounds]
-          .sort((a, b) => a - b)
-          .map((roundNum) => ({
-            title: `2.${roundNum}`,
-            key: `round_${roundNum}`,
-            width: 100,
-            align: 'right' as const,
-            render: (_: unknown, record: PurchaseSummaryItem) =>
-              formatNum(record.rounds[String(roundNum)] ?? 0),
-          }))
-      : []
+  const dynamic: ColumnsType<PurchaseSummaryItem> = run
+    ? [...run.rounds]
+        .sort((a, b) => a - b)
+        .map((roundNum) => ({
+          title: `2.${roundNum}`,
+          key: `round_${roundNum}`,
+          width: 100,
+          align: 'right' as const,
+          render: (_: unknown, record: PurchaseSummaryItem) =>
+            formatNum(record.rounds[String(roundNum)] ?? 0),
+        }))
+    : []
 
   return [...fixed, ...dynamic]
 }
@@ -101,7 +106,9 @@ function SectionTable({ run, items, loading, emptyText }: SectionTableProps) {
 }
 
 export default function PurchaseSummaryPage() {
-  const [selectedRunId, setSelectedRunId] = useState<number | undefined>(undefined)
+  const [selectedRunId, setSelectedRunId] = useState<number | undefined>(
+    undefined,
+  )
 
   // Load runs list to initialize selector
   const { data: runs = [] } = useQuery({
@@ -143,7 +150,9 @@ export default function PurchaseSummaryPage() {
     enabled: runs.length > 0 || selectedRunId !== undefined,
   })
 
-  const noRuns = (purchaseError && is404(purchaseError)) || (recoveryError && is404(recoveryError))
+  const noRuns =
+    (purchaseError && is404(purchaseError)) ||
+    (recoveryError && is404(recoveryError))
 
   if (noRuns) {
     return (

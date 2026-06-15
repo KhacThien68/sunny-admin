@@ -5,7 +5,11 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
-import { ExcelService, RowError, SheetSpec } from '../common/excel/excel.service';
+import {
+  ExcelService,
+  RowError,
+  SheetSpec,
+} from '../common/excel/excel.service';
 import { ComponentsService } from '../components/components.service';
 import { OnhandInventory } from './onhand.entity';
 
@@ -23,9 +27,24 @@ export interface OnhandImportResult {
 
 const ONHAND_SPEC: SheetSpec = {
   columns: [
-    { header: 'Component', key: 'componentCode', required: true, type: 'string' },
-    { header: 'Component description', key: 'description', required: false, type: 'string' },
-    { header: 'On-Hand Inventory', key: 'quantity', required: true, type: 'number' },
+    {
+      header: 'Component',
+      key: 'componentCode',
+      required: true,
+      type: 'string',
+    },
+    {
+      header: 'Component description',
+      key: 'description',
+      required: false,
+      type: 'string',
+    },
+    {
+      header: 'On-Hand Inventory',
+      key: 'quantity',
+      required: true,
+      type: 'number',
+    },
   ],
 };
 
@@ -70,13 +89,18 @@ export class OnhandService {
   //  Upsert
   // ────────────────────────────────────────────────────────────────────────────
 
-  async upsert(componentCode: string, quantity: number): Promise<OnhandInventory> {
+  async upsert(
+    componentCode: string,
+    quantity: number,
+  ): Promise<OnhandInventory> {
     const trimmed = componentCode.trim();
     if (!trimmed) {
       throw new BadRequestException('Mã thành phần không được để trống');
     }
 
-    const existing = await this.onhandRepo.findOne({ where: { componentCode: trimmed } });
+    const existing = await this.onhandRepo.findOne({
+      where: { componentCode: trimmed },
+    });
     if (existing) {
       existing.quantity = quantity;
       return this.onhandRepo.save(existing);
@@ -133,7 +157,10 @@ export class OnhandService {
     buffer: Buffer,
     mode: 'preview' | 'commit',
   ): Promise<OnhandImportResult> {
-    const parsed = await this.excelService.parse<Record<string, unknown>>(buffer, ONHAND_SPEC);
+    const parsed = await this.excelService.parse<Record<string, unknown>>(
+      buffer,
+      ONHAND_SPEC,
+    );
 
     // Start with errors from the generic parser
     const allErrors: RowError[] = [...parsed.errors];
@@ -169,7 +196,9 @@ export class OnhandService {
     // Collect unregistered codes as warnings (non-blocking)
     const allCodesInFile = new Set(dedupedRows.map((r) => r.componentCode));
     if (allCodesInFile.size > 0) {
-      const codeMap = await this.componentsService.getCodeMap([...allCodesInFile]);
+      const codeMap = await this.componentsService.getCodeMap([
+        ...allCodesInFile,
+      ]);
       for (const code of allCodesInFile) {
         if (!codeMap.has(code)) {
           warnings.push(`Mã ${code} chưa được khai báo tại Quản lý mã`);
@@ -181,12 +210,17 @@ export class OnhandService {
       await this.dataSource.transaction(async (em: EntityManager) => {
         const repo = em.getRepository(OnhandInventory);
         for (const row of dedupedRows) {
-          const existing = await repo.findOne({ where: { componentCode: row.componentCode } });
+          const existing = await repo.findOne({
+            where: { componentCode: row.componentCode },
+          });
           if (existing) {
             existing.quantity = row.quantity;
             await repo.save(existing);
           } else {
-            const record = repo.create({ componentCode: row.componentCode, quantity: row.quantity });
+            const record = repo.create({
+              componentCode: row.componentCode,
+              quantity: row.quantity,
+            });
             await repo.save(record);
           }
         }

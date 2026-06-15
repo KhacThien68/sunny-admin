@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -111,7 +108,12 @@ export class AuthService {
     const tokenHash = sha256(refreshToken);
     const expiresAt = new Date(Date.now() + REFRESH_TTL_MS);
 
-    await this.tokenRepo.save({ userId: user.id, tokenHash, expiresAt, revokedAt: null });
+    await this.tokenRepo.save({
+      userId: user.id,
+      tokenHash,
+      expiresAt,
+      revokedAt: null,
+    });
 
     return {
       accessToken,

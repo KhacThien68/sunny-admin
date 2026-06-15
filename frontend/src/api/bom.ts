@@ -1,6 +1,11 @@
 import { apiClient } from './client'
 import { ENDPOINTS } from '../constants/endpoints'
-import type { BomRow, BomTreeNode, CreateBomBody, UpdateBomBody } from '../types'
+import type {
+  BomRow,
+  BomTreeNode,
+  CreateBomBody,
+  UpdateBomBody,
+} from '../types'
 
 export type { BomRow, BomTreeNode, CreateBomBody, UpdateBomBody }
 
@@ -16,7 +21,10 @@ export async function createBomRow(body: CreateBomBody): Promise<BomRow> {
   return res.data
 }
 
-export async function updateBomRow(id: number, body: UpdateBomBody): Promise<BomRow> {
+export async function updateBomRow(
+  id: number,
+  body: UpdateBomBody,
+): Promise<BomRow> {
   const res = await apiClient.patch<BomRow>(ENDPOINTS.bom.byId(id), body)
   return res.data
 }

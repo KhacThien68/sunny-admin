@@ -62,7 +62,12 @@ interface AddBomModalProps {
   canCreateComponent: boolean
 }
 
-function AddBomModal({ open, onClose, onSuccess, canCreateComponent }: AddBomModalProps) {
+function AddBomModal({
+  open,
+  onClose,
+  onSuccess,
+  canCreateComponent,
+}: AddBomModalProps) {
   const { message } = App.useApp()
   const [form] = Form.useForm<{
     parentCode: string
@@ -97,9 +102,12 @@ function AddBomModal({ open, onClose, onSuccess, canCreateComponent }: AddBomMod
   })
 
   function handleOk() {
-    form.validateFields().then((values) => {
-      createMutation.mutate(values)
-    }).catch(() => {})
+    form
+      .validateFields()
+      .then((values) => {
+        createMutation.mutate(values)
+      })
+      .catch(() => {})
   }
 
   function handleCancel() {
@@ -202,10 +210,13 @@ function EditQtyModal({ open, row, onClose, onSuccess }: EditQtyModalProps) {
   })
 
   function handleOk() {
-    form.validateFields().then((values) => {
-      if (!row) return
-      updateMutation.mutate({ id: row.id, qty: values.quantityPerUnit })
-    }).catch(() => {})
+    form
+      .validateFields()
+      .then((values) => {
+        if (!row) return
+        updateMutation.mutate({ id: row.id, qty: values.quantityPerUnit })
+      })
+      .catch(() => {})
   }
 
   return (
@@ -229,7 +240,11 @@ function EditQtyModal({ open, row, onClose, onSuccess }: EditQtyModalProps) {
           label="Định mức / 1 đơn vị cha"
           rules={[
             { required: true, message: 'Vui lòng nhập định mức' },
-            { type: 'number', min: 0.000001, message: 'Định mức phải lớn hơn 0' },
+            {
+              type: 'number',
+              min: 0.000001,
+              message: 'Định mức phải lớn hơn 0',
+            },
           ]}
         >
           <InputNumber min={0.000001} step={1} style={{ width: '100%' }} />
@@ -267,7 +282,9 @@ function BomListTab() {
     onSuccess: () => {
       void message.success('Đã xóa dòng BoM')
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bomBase })
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bomUnregistered })
+      void queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.bomUnregistered,
+      })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi xóa'))
@@ -364,7 +381,7 @@ function BomListTab() {
       title: 'Thao tác',
       key: 'actions',
       width: 100,
-      render: (_: unknown, record: BomRow) => (
+      render: (_: unknown, record: BomRow) =>
         canDelete ? (
           <Popconfirm
             title="Xóa dòng BoM này?"
@@ -376,8 +393,7 @@ function BomListTab() {
               Xóa
             </Button>
           </Popconfirm>
-        ) : null
-      ),
+        ) : null,
     },
   ]
 
@@ -423,9 +439,15 @@ function BomListTab() {
               importUrl={ENDPOINTS.bom.import}
               templateFileName="bom_template.xlsx"
               onDone={() => {
-                void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bomBase })
-                void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bomUnregistered })
-                void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bomTreeBase })
+                void queryClient.invalidateQueries({
+                  queryKey: QUERY_KEYS.bomBase,
+                })
+                void queryClient.invalidateQueries({
+                  queryKey: QUERY_KEYS.bomUnregistered,
+                })
+                void queryClient.invalidateQueries({
+                  queryKey: QUERY_KEYS.bomTreeBase,
+                })
               }}
             />
           )}
@@ -444,7 +466,11 @@ function BomListTab() {
         dataSource={bomData}
         columns={columns}
         scroll={{ x: 'max-content' }}
-        pagination={{ pageSize: 50, showSizeChanger: true, showTotal: (t) => `Tổng ${t} dòng` }}
+        pagination={{
+          pageSize: 50,
+          showSizeChanger: true,
+          showTotal: (t) => `Tổng ${t} dòng`,
+        }}
         size="small"
       />
 
@@ -505,19 +531,16 @@ function BomTreeTab() {
         filterOption={false}
       />
 
-      {selectedCode && (
-        isLoading ? (
+      {selectedCode &&
+        (isLoading ? (
           <Typography.Text>Đang tải...</Typography.Text>
         ) : treeData ? (
-          <Tree
-            treeData={antdTreeData}
-            defaultExpandAll
-            showLine
-          />
+          <Tree treeData={antdTreeData} defaultExpandAll showLine />
         ) : (
-          <Typography.Text type="secondary">Không có dữ liệu cây BoM cho mã này.</Typography.Text>
-        )
-      )}
+          <Typography.Text type="secondary">
+            Không có dữ liệu cây BoM cho mã này.
+          </Typography.Text>
+        ))}
     </Space>
   )
 }

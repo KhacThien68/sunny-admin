@@ -22,10 +22,9 @@ export class PermissionGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const required = this.reflector.getAllAndOverride<RequiredPermission | undefined>(
-      REQUIRED_PERMISSION_KEY,
-      [context.getHandler(), context.getClass()],
-    );
+    const required = this.reflector.getAllAndOverride<
+      RequiredPermission | undefined
+    >(REQUIRED_PERMISSION_KEY, [context.getHandler(), context.getClass()]);
 
     // No permission annotation — allow
     if (!required) return true;

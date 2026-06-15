@@ -12,7 +12,9 @@ async function bootstrap() {
   const existing = await usersService.findByEmail(adminEmail);
 
   if (existing) {
-    console.log(`[seed] Admin user already exists (id=${existing.id}). Nothing to do.`);
+    console.log(
+      `[seed] Admin user already exists (id=${existing.id}). Nothing to do.`,
+    );
   } else {
     const passwordHash = await bcrypt.hash('admin123', 10);
     const admin = await usersService.create({
@@ -22,7 +24,9 @@ async function bootstrap() {
       isActive: true,
       passwordHash,
     });
-    console.log(`[seed] Created admin user (id=${admin.id}, email=${admin.email}).`);
+    console.log(
+      `[seed] Created admin user (id=${admin.id}, email=${admin.email}).`,
+    );
   }
 
   await app.close();

@@ -45,7 +45,10 @@ export async function updateOrder(
   id: number,
   body: UpdateOrderBody,
 ): Promise<OrderDetail> {
-  const res = await apiClient.patch<OrderDetail>(ENDPOINTS.orders.byId(id), body)
+  const res = await apiClient.patch<OrderDetail>(
+    ENDPOINTS.orders.byId(id),
+    body,
+  )
   return res.data
 }
 
@@ -54,13 +57,17 @@ export async function deleteOrder(id: number): Promise<void> {
 }
 
 export async function aggregateOrders(): Promise<AggregationResult> {
-  const res = await apiClient.post<AggregationResult>(ENDPOINTS.orders.aggregate)
+  const res = await apiClient.post<AggregationResult>(
+    ENDPOINTS.orders.aggregate,
+  )
   return res.data
 }
 
 export async function getLatestAggregation(): Promise<LatestAggregation | null> {
   try {
-    const res = await apiClient.get<LatestAggregation>(ENDPOINTS.orders.aggregationsLatest)
+    const res = await apiClient.get<LatestAggregation>(
+      ENDPOINTS.orders.aggregationsLatest,
+    )
     return res.data
   } catch (err: unknown) {
     const axiosErr = err as { response?: { status?: number } }

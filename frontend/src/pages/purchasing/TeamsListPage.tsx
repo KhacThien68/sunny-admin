@@ -41,7 +41,9 @@ export default function TeamsListPage() {
   const { canCreate, canUpdate, canDelete } = usePermission('PURCHASING_TEAMS')
 
   const [modalOpen, setModalOpen] = useState(false)
-  const [editingTeam, setEditingTeam] = useState<PurchasingTeamSummary | null>(null)
+  const [editingTeam, setEditingTeam] = useState<PurchasingTeamSummary | null>(
+    null,
+  )
   const [form] = Form.useForm<TeamFormValues>()
 
   const [unassignedModalOpen, setUnassignedModalOpen] = useState(false)
@@ -62,7 +64,9 @@ export default function TeamsListPage() {
     onSuccess: () => {
       void message.success('Đã tạo team')
       setModalOpen(false)
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeams })
+      void queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.purchasingTeams,
+      })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi tạo team'))
@@ -75,7 +79,9 @@ export default function TeamsListPage() {
     onSuccess: () => {
       void message.success('Đã lưu')
       setModalOpen(false)
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeams })
+      void queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.purchasingTeams,
+      })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi cập nhật team'))
@@ -86,8 +92,12 @@ export default function TeamsListPage() {
     mutationFn: deletePurchasingTeam,
     onSuccess: () => {
       void message.success('Đã xóa team')
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeams })
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.unassignedComponents })
+      void queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.purchasingTeams,
+      })
+      void queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.unassignedComponents,
+      })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi xóa team'))

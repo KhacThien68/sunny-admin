@@ -59,11 +59,16 @@ interface OrderFormValues {
   lines: LineFormValue[]
 }
 
-async function searchComponentOptions(search: string): Promise<ComponentSearchItem[]> {
+async function searchComponentOptions(
+  search: string,
+): Promise<ComponentSearchItem[]> {
   if (!search || search.length < 1) return []
-  const res = await apiClient.get<{ items: ComponentSearchItem[] }>(ENDPOINTS.components.base, {
-    params: { search, pageSize: 20 },
-  })
+  const res = await apiClient.get<{ items: ComponentSearchItem[] }>(
+    ENDPOINTS.components.base,
+    {
+      params: { search, pageSize: 20 },
+    },
+  )
   return res.data.items
 }
 
@@ -84,7 +89,9 @@ export default function OrdersPage() {
   const [aggResult, setAggResult] = useState<AggregationResult | null>(null)
 
   // Component search per-line autocomplete
-  const [lineOptions, setLineOptions] = useState<Record<number, ComponentSearchItem[]>>({})
+  const [lineOptions, setLineOptions] = useState<
+    Record<number, ComponentSearchItem[]>
+  >({})
 
   const [form] = Form.useForm<OrderFormValues>()
 
@@ -114,8 +121,13 @@ export default function OrdersPage() {
   })
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, body }: { id: number; body: Parameters<typeof updateOrder>[1] }) =>
-      updateOrder(id, body),
+    mutationFn: ({
+      id,
+      body,
+    }: {
+      id: number
+      body: Parameters<typeof updateOrder>[1]
+    }) => updateOrder(id, body),
     onSuccess: () => {
       void message.success('Đã cập nhật đơn hàng')
       setModalOpen(false)
@@ -144,7 +156,9 @@ export default function OrdersPage() {
       setAggResult(result)
       setAggResultOpen(true)
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.orders })
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.latestAggregation })
+      void queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.latestAggregation,
+      })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi tổng hợp'))
@@ -179,7 +193,9 @@ export default function OrdersPage() {
       })
       setModalOpen(true)
     } catch (err) {
-      void message.error(getErrorMessage(err, 'Không thể tải chi tiết đơn hàng'))
+      void message.error(
+        getErrorMessage(err, 'Không thể tải chi tiết đơn hàng'),
+      )
     } finally {
       setLoadingDetail(false)
     }
@@ -218,18 +234,21 @@ export default function OrdersPage() {
       .catch(() => {})
   }
 
-  const handleLineSearch = useCallback(async (index: number, search: string) => {
-    if (!search) {
-      setLineOptions((prev) => ({ ...prev, [index]: [] }))
-      return
-    }
-    try {
-      const items = await searchComponentOptions(search)
-      setLineOptions((prev) => ({ ...prev, [index]: items }))
-    } catch {
-      // ignore search errors
-    }
-  }, [])
+  const handleLineSearch = useCallback(
+    async (index: number, search: string) => {
+      if (!search) {
+        setLineOptions((prev) => ({ ...prev, [index]: [] }))
+        return
+      }
+      try {
+        const items = await searchComponentOptions(search)
+        setLineOptions((prev) => ({ ...prev, [index]: items }))
+      } catch {
+        // ignore search errors
+      }
+    },
+    [],
+  )
 
   const isReadOnly = viewingOrder?.status === 'AGGREGATED'
   const isEditing = !!editingOrder
@@ -336,7 +355,10 @@ export default function OrdersPage() {
       title: 'Mã',
       dataIndex: 'componentCode',
       key: 'componentCode',
-      render: (_: unknown, record: { componentCode: string; registered: boolean }) => (
+      render: (
+        _: unknown,
+        record: { componentCode: string; registered: boolean },
+      ) => (
         <UnregisteredCode
           code={record.componentCode}
           registered={record.registered}
@@ -381,8 +403,12 @@ export default function OrdersPage() {
               importUrl={ENDPOINTS.orders.import}
               templateFileName="orders_template.xlsx"
               onDone={() => {
-                void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.orders })
-                void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.latestAggregation })
+                void queryClient.invalidateQueries({
+                  queryKey: QUERY_KEYS.orders,
+                })
+                void queryClient.invalidateQueries({
+                  queryKey: QUERY_KEYS.latestAggregation,
+                })
               }}
             />
           )}
@@ -426,15 +452,12 @@ export default function OrdersPage() {
       />
 
       {/* Latest Aggregation Card */}
-      <Card
-        title="Lần tổng hợp gần nhất"
-        size="small"
-        loading={aggLoading}
-      >
+      <Card title="Lần tổng hợp gần nhất" size="small" loading={aggLoading}>
         {latestAggregation ? (
           <Space direction="vertical" style={{ width: '100%' }}>
             <Typography.Text type="secondary">
-              Thời điểm: {dayjs(latestAggregation.createdAt).format('DD/MM/YYYY HH:mm')}
+              Thời điểm:{' '}
+              {dayjs(latestAggregation.createdAt).format('DD/MM/YYYY HH:mm')}
             </Typography.Text>
             <Table
               rowKey="componentCode"
@@ -462,7 +485,9 @@ export default function OrdersPage() {
         onOk={handleModalOk}
         okText={isReadOnly ? 'Đóng' : 'Lưu'}
         cancelText="Hủy"
-        cancelButtonProps={isReadOnly ? { style: { display: 'none' } } : undefined}
+        cancelButtonProps={
+          isReadOnly ? { style: { display: 'none' } } : undefined
+        }
         confirmLoading={isSubmitting}
         destroyOnHidden
         width={640}
@@ -471,7 +496,9 @@ export default function OrdersPage() {
           <Form.Item
             name="customerGroup"
             label="Nhóm khách hàng"
-            rules={[{ required: true, message: 'Vui lòng nhập nhóm khách hàng' }]}
+            rules={[
+              { required: true, message: 'Vui lòng nhập nhóm khách hàng' },
+            ]}
           >
             <Input disabled={isReadOnly} placeholder="VD: KH-01" />
           </Form.Item>
@@ -508,54 +535,59 @@ export default function OrdersPage() {
                 {fields.map((field, index) => {
                   const { key: _fieldKey, ...fieldRest } = field
                   return (
-                  <div
-                    key={field.key}
-                    style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 8 }}
-                  >
-                    <Form.Item
-                      {...fieldRest}
-                      name={[field.name, 'componentCode']}
-                      rules={[{ required: true, message: 'Nhập mã' }]}
-                      style={{ flex: 1, margin: 0 }}
+                    <div
+                      key={field.key}
+                      style={{
+                        display: 'flex',
+                        gap: 8,
+                        alignItems: 'flex-start',
+                        marginBottom: 8,
+                      }}
                     >
-                      <AutoComplete
-                        options={getLineOptions(index)}
-                        onSearch={(val) => void handleLineSearch(index, val)}
-                        filterOption={false}
-                        placeholder="Tìm hoặc nhập mã"
-                        disabled={isReadOnly}
-                      />
-                    </Form.Item>
-                    <Form.Item
-                      {...fieldRest}
-                      name={[field.name, 'quantity']}
-                      rules={[
-                        { required: true, message: 'Nhập SL' },
-                        {
-                          type: 'number',
-                          min: 1,
-                          message: 'SL > 0',
-                        },
-                      ]}
-                      style={{ width: 120, margin: 0 }}
-                    >
-                      <InputNumber
-                        min={1}
-                        style={{ width: '100%' }}
-                        placeholder="Số lượng"
-                        disabled={isReadOnly}
-                      />
-                    </Form.Item>
-                    {!isReadOnly && (
-                      <Button
-                        type="text"
-                        icon={<MinusCircleOutlined />}
-                        danger
-                        onClick={() => remove(field.name)}
-                        style={{ marginTop: 4 }}
-                      />
-                    )}
-                  </div>
+                      <Form.Item
+                        {...fieldRest}
+                        name={[field.name, 'componentCode']}
+                        rules={[{ required: true, message: 'Nhập mã' }]}
+                        style={{ flex: 1, margin: 0 }}
+                      >
+                        <AutoComplete
+                          options={getLineOptions(index)}
+                          onSearch={(val) => void handleLineSearch(index, val)}
+                          filterOption={false}
+                          placeholder="Tìm hoặc nhập mã"
+                          disabled={isReadOnly}
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        {...fieldRest}
+                        name={[field.name, 'quantity']}
+                        rules={[
+                          { required: true, message: 'Nhập SL' },
+                          {
+                            type: 'number',
+                            min: 1,
+                            message: 'SL > 0',
+                          },
+                        ]}
+                        style={{ width: 120, margin: 0 }}
+                      >
+                        <InputNumber
+                          min={1}
+                          style={{ width: '100%' }}
+                          placeholder="Số lượng"
+                          disabled={isReadOnly}
+                        />
+                      </Form.Item>
+                      {!isReadOnly && (
+                        <Button
+                          type="text"
+                          icon={<MinusCircleOutlined />}
+                          danger
+                          onClick={() => remove(field.name)}
+                          style={{ marginTop: 4 }}
+                        />
+                      )}
+                    </div>
                   )
                 })}
                 {!isReadOnly && (

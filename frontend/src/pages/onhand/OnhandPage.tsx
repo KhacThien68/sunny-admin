@@ -117,7 +117,9 @@ export default function OnhandPage() {
             onSuccess: () => {
               setAddOpen(false)
               addForm.resetFields()
-              void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.onhand })
+              void queryClient.invalidateQueries({
+                queryKey: QUERY_KEYS.onhand,
+              })
             },
           },
         )
@@ -184,7 +186,11 @@ export default function OnhandPage() {
         }
         return (
           <span
-            style={canUpdate ? { cursor: 'pointer', textDecoration: 'underline dotted' } : undefined}
+            style={
+              canUpdate
+                ? { cursor: 'pointer', textDecoration: 'underline dotted' }
+                : undefined
+            }
             onClick={() => handleQtyClick(record)}
             title={canUpdate ? 'Click để sửa' : undefined}
           >
@@ -250,7 +256,9 @@ export default function OnhandPage() {
               importUrl={ENDPOINTS.onhand.import}
               templateFileName="onhand_template.xlsx"
               onDone={() =>
-                void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.onhand })
+                void queryClient.invalidateQueries({
+                  queryKey: QUERY_KEYS.onhand,
+                })
               }
             />
           )}

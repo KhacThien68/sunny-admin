@@ -23,17 +23,27 @@ export async function getOutputRuns(): Promise<OutputRunSummary[]> {
   return res.data
 }
 
-export async function getPurchaseSummary(runId?: number): Promise<PurchaseSummaryResponse> {
-  const res = await apiClient.get<PurchaseSummaryResponse>(ENDPOINTS.outputs.purchaseSummary, {
-    params: runId !== undefined ? { runId } : undefined,
-  })
+export async function getPurchaseSummary(
+  runId?: number,
+): Promise<PurchaseSummaryResponse> {
+  const res = await apiClient.get<PurchaseSummaryResponse>(
+    ENDPOINTS.outputs.purchaseSummary,
+    {
+      params: runId !== undefined ? { runId } : undefined,
+    },
+  )
   return res.data
 }
 
-export async function getRecoverySummary(runId?: number): Promise<PurchaseSummaryResponse> {
-  const res = await apiClient.get<PurchaseSummaryResponse>(ENDPOINTS.outputs.recoverySummary, {
-    params: runId !== undefined ? { runId } : undefined,
-  })
+export async function getRecoverySummary(
+  runId?: number,
+): Promise<PurchaseSummaryResponse> {
+  const res = await apiClient.get<PurchaseSummaryResponse>(
+    ENDPOINTS.outputs.recoverySummary,
+    {
+      params: runId !== undefined ? { runId } : undefined,
+    },
+  )
   return res.data
 }
 

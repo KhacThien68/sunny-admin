@@ -47,9 +47,7 @@ function makeLine(overrides: Partial<EngineLine>): EngineLine {
 describe('computeRound', () => {
   it('test 1 – Excel example: Order 50, OnHand 3, Levels 2, mob CO_THE → demand 49, mfg 49', () => {
     // raw = 50 − 3 + 2 = 49; demand = max(0,49) = 49; CO_THE → mfg 49, purchase 0
-    const components = makeComponentsMap([
-      makeComponent('SP', 'CO_THE', 0, 2),
-    ]);
+    const components = makeComponentsMap([makeComponent('SP', 'CO_THE', 0, 2)]);
     const initialOnhand = new Map([['SP', 3]]);
     const purchasedBefore = new Map<string, number>();
     const demandedBefore = new Set<string>();
@@ -75,9 +73,7 @@ describe('computeRound', () => {
 
   it('test 2 – Negative raw: Order 5, OnHand 10, Levels 2 → demand 0, recovery 3', () => {
     // raw = 5 − 10 + 2 = −3; demand = max(0,−3) = 0; recovery = max(0,3) = 3
-    const components = makeComponentsMap([
-      makeComponent('SP', 'KHONG', 0, 2),
-    ]);
+    const components = makeComponentsMap([makeComponent('SP', 'KHONG', 0, 2)]);
     const initialOnhand = new Map([['SP', 10]]);
     const purchasedBefore = new Map<string, number>();
     const demandedBefore = new Set<string>();
@@ -229,9 +225,7 @@ describe('computeRound', () => {
   it('test 9 – Decimal rounding to 4 places avoids float drift', () => {
     // orderQty = 1.00005, onhand = 0, levels = 0 → raw = 1.00005
     // round4(1.00005) = 1.0001
-    const components = makeComponentsMap([
-      makeComponent('X', 'KHONG', 0, 0),
-    ]);
+    const components = makeComponentsMap([makeComponent('X', 'KHONG', 0, 0)]);
     const initialOnhand = new Map([['X', 0]]);
     const purchasedBefore = new Map<string, number>();
     const demandedBefore = new Set<string>();
@@ -247,7 +241,9 @@ describe('computeRound', () => {
 
     // All numbers should be rounded to 4 decimal places
     expect(lines[0].demand).toBe(Math.round(1.00005 * 10000) / 10000);
-    expect(String(lines[0].demand).split('.')[1]?.length ?? 0).toBeLessThanOrEqual(4);
+    expect(
+      String(lines[0].demand).split('.')[1]?.length ?? 0,
+    ).toBeLessThanOrEqual(4);
   });
 });
 
@@ -281,7 +277,12 @@ describe('defaultSplit', () => {
 describe('applyPurchaseEdit', () => {
   it('test 10 – Excel example: demand 49, edit purchase 10 (moq 5, CO_THE) → manufacturing 39', () => {
     const c = makeComponent('SP', 'CO_THE', 5, 2);
-    const line = makeLine({ code: 'SP', demand: 49, purchase: 0, manufacturing: 49 });
+    const line = makeLine({
+      code: 'SP',
+      demand: 49,
+      purchase: 0,
+      manufacturing: 49,
+    });
     const updated = applyPurchaseEdit(line, 10, c);
     expect(updated.purchase).toBe(10);
     expect(updated.manufacturing).toBe(39);
@@ -289,7 +290,12 @@ describe('applyPurchaseEdit', () => {
 
   it('test 11 – purchase 0 → manufacturing = demand (reset)', () => {
     const c = makeComponent('SP', 'CO_THE', 5, 2);
-    const line = makeLine({ code: 'SP', demand: 49, purchase: 10, manufacturing: 39 });
+    const line = makeLine({
+      code: 'SP',
+      demand: 49,
+      purchase: 10,
+      manufacturing: 39,
+    });
     const updated = applyPurchaseEdit(line, 0, c);
     expect(updated.purchase).toBe(0);
     expect(updated.manufacturing).toBe(49);
@@ -297,13 +303,23 @@ describe('applyPurchaseEdit', () => {
 
   it('test 12 – 0 < purchase < moq → throws with moq in message', () => {
     const c = makeComponent('SP', 'CO_THE', 5, 2);
-    const line = makeLine({ code: 'SP', demand: 49, purchase: 0, manufacturing: 49 });
+    const line = makeLine({
+      code: 'SP',
+      demand: 49,
+      purchase: 0,
+      manufacturing: 49,
+    });
     expect(() => applyPurchaseEdit(line, 3, c)).toThrow('5');
   });
 
   it('test 13 – purchase > demand (moq forces overbuy): demand 3, purchase 5 → manufacturing 0 (not negative)', () => {
     const c = makeComponent('SP', 'CO_THE', 5, 2);
-    const line = makeLine({ code: 'SP', demand: 3, purchase: 0, manufacturing: 3 });
+    const line = makeLine({
+      code: 'SP',
+      demand: 3,
+      purchase: 0,
+      manufacturing: 3,
+    });
     const updated = applyPurchaseEdit(line, 5, c);
     expect(updated.purchase).toBe(5);
     expect(updated.manufacturing).toBe(0);
@@ -311,7 +327,12 @@ describe('applyPurchaseEdit', () => {
 
   it('test 14 – mob KHONG, purchase 2 → throws Vietnamese message', () => {
     const c = makeComponent('X', 'KHONG', 0, 0);
-    const line = makeLine({ code: 'X', demand: 20, purchase: 0, manufacturing: 20 });
+    const line = makeLine({
+      code: 'X',
+      demand: 20,
+      purchase: 0,
+      manufacturing: 20,
+    });
     expect(() => applyPurchaseEdit(line, 2, c)).toThrow(
       'Mã khai báo là sản xuất, không được mua',
     );
@@ -319,7 +340,12 @@ describe('applyPurchaseEdit', () => {
 
   it('test 15 – mob BAT_BUOC → throws Vietnamese message', () => {
     const c = makeComponent('X', 'BAT_BUOC', 5, 0);
-    const line = makeLine({ code: 'X', demand: 10, purchase: 10, manufacturing: 0 });
+    const line = makeLine({
+      code: 'X',
+      demand: 10,
+      purchase: 10,
+      manufacturing: 0,
+    });
     expect(() => applyPurchaseEdit(line, 20, c)).toThrow(
       'Mã bắt buộc mua, không chỉnh tay',
     );
@@ -330,9 +356,7 @@ describe('applyPurchaseEdit', () => {
 
 describe('explodeNextDemands', () => {
   it('test 16 – manufacturing 39 × edge 0.029 → child demand 1.131', () => {
-    const lines: EngineLine[] = [
-      makeLine({ code: 'SP', manufacturing: 39 }),
-    ];
+    const lines: EngineLine[] = [makeLine({ code: 'SP', manufacturing: 39 })];
     const edges: BomEdge[] = [
       { parentCode: 'SP', childCode: 'CHILD', qtyPerUnit: 0.029 },
     ];
@@ -360,9 +384,7 @@ describe('explodeNextDemands', () => {
   });
 
   it('test 18 – manufacturing 0 lines produce nothing; no edges → empty array', () => {
-    const lines: EngineLine[] = [
-      makeLine({ code: 'SP', manufacturing: 0 }),
-    ];
+    const lines: EngineLine[] = [makeLine({ code: 'SP', manufacturing: 0 })];
     const edges: BomEdge[] = [
       { parentCode: 'SP', childCode: 'CHILD', qtyPerUnit: 1 },
     ];
@@ -378,12 +400,18 @@ describe('explodeNextDemands', () => {
 
 describe('isFinished', () => {
   it('test 19 – all manufacturing 0 → true', () => {
-    const lines = [makeLine({ manufacturing: 0 }), makeLine({ manufacturing: 0 })];
+    const lines = [
+      makeLine({ manufacturing: 0 }),
+      makeLine({ manufacturing: 0 }),
+    ];
     expect(isFinished(lines, 1)).toBe(true);
   });
 
   it('test 20 – some manufacturing > 0, round < 9 → false', () => {
-    const lines = [makeLine({ manufacturing: 5 }), makeLine({ manufacturing: 0 })];
+    const lines = [
+      makeLine({ manufacturing: 5 }),
+      makeLine({ manufacturing: 0 }),
+    ];
     expect(isFinished(lines, 3)).toBe(false);
   });
 
@@ -510,9 +538,9 @@ describe('Multi-round integration', () => {
     expect(round2Lines).toHaveLength(1);
     const r2PHOI = round2Lines[0];
     expect(r2PHOI.code).toBe('PHOI');
-    expect(r2PHOI.onhand).toBe(0);   // initialOnhand[PHOI]=0 + purchasedBefore[PHOI]=0
-    expect(r2PHOI.levels).toBe(2);   // not in demandedBefore yet → inventoryLevel
-    expect(r2PHOI.demand).toBe(49);  // 47 − 0 + 2 = 49
+    expect(r2PHOI.onhand).toBe(0); // initialOnhand[PHOI]=0 + purchasedBefore[PHOI]=0
+    expect(r2PHOI.levels).toBe(2); // not in demandedBefore yet → inventoryLevel
+    expect(r2PHOI.demand).toBe(49); // 47 − 0 + 2 = 49
     expect(r2PHOI.purchase).toBe(0);
     expect(r2PHOI.manufacturing).toBe(49);
 
@@ -528,7 +556,7 @@ describe('Multi-round integration', () => {
     demands = explodeNextDemands(round2Lines, edges);
     expect(demands).toHaveLength(1);
     expect(demands[0].code).toBe('HAT');
-    expect(demands[0].orderQty).toBe(24.5);  // 49 * 0.5
+    expect(demands[0].orderQty).toBe(24.5); // 49 * 0.5
 
     expect(isFinished(round2Lines, 2)).toBe(false);
 
@@ -544,9 +572,9 @@ describe('Multi-round integration', () => {
     expect(round3Lines).toHaveLength(1);
     const r3HAT = round3Lines[0];
     expect(r3HAT.code).toBe('HAT');
-    expect(r3HAT.onhand).toBe(1);     // initialOnhand[HAT]=1 + purchasedBefore[HAT]=0
-    expect(r3HAT.levels).toBe(1);     // not in demandedBefore → inventoryLevel
-    expect(r3HAT.demand).toBe(24.5);  // 24.5 − 1 + 1 = 24.5
+    expect(r3HAT.onhand).toBe(1); // initialOnhand[HAT]=1 + purchasedBefore[HAT]=0
+    expect(r3HAT.levels).toBe(1); // not in demandedBefore → inventoryLevel
+    expect(r3HAT.demand).toBe(24.5); // 24.5 − 1 + 1 = 24.5
     expect(r3HAT.purchase).toBe(24.5); // BAT_BUOC: max(24.5, 5) = 24.5
     expect(r3HAT.manufacturing).toBe(0);
 

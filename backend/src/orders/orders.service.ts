@@ -6,7 +6,11 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
-import { ExcelService, RowError, SheetSpec } from '../common/excel/excel.service';
+import {
+  ExcelService,
+  RowError,
+  SheetSpec,
+} from '../common/excel/excel.service';
 import { ComponentsService } from '../components/components.service';
 import { AggregationLine, OrderAggregation } from './aggregation.entity';
 import { CreateOrderDto, UpdateOrderDto } from './dto/order.dto';
@@ -57,10 +61,30 @@ export interface OrderImportResult {
 
 const ORDERS_SPEC: SheetSpec = {
   columns: [
-    { header: 'Customer group', key: 'customerGroup', required: true, type: 'string' },
-    { header: 'Material', key: 'componentCode', required: true, type: 'string' },
-    { header: 'Material description', key: 'materialDescription', required: false, type: 'string' },
-    { header: 'Order quantity', key: 'quantity', required: true, type: 'number' },
+    {
+      header: 'Customer group',
+      key: 'customerGroup',
+      required: true,
+      type: 'string',
+    },
+    {
+      header: 'Material',
+      key: 'componentCode',
+      required: true,
+      type: 'string',
+    },
+    {
+      header: 'Material description',
+      key: 'materialDescription',
+      required: false,
+      type: 'string',
+    },
+    {
+      header: 'Order quantity',
+      key: 'quantity',
+      required: true,
+      type: 'number',
+    },
   ],
 };
 
@@ -122,9 +146,10 @@ export class OrdersService {
 
     const lines = order.lines ?? [];
     const allCodes = lines.map((l) => l.componentCode);
-    const codeMap = allCodes.length > 0
-      ? await this.componentsService.getCodeMap(allCodes)
-      : new Map();
+    const codeMap =
+      allCodes.length > 0
+        ? await this.componentsService.getCodeMap(allCodes)
+        : new Map();
 
     const linesWithFlags: OrderLineWithFlags[] = lines.map((l) => ({
       ...l,
@@ -142,7 +167,9 @@ export class OrdersService {
   async create(dto: CreateOrderDto, userId: number): Promise<Order> {
     // Duplicate code check
     if (dto.code) {
-      const existing = await this.orderRepo.findOne({ where: { code: dto.code } });
+      const existing = await this.orderRepo.findOne({
+        where: { code: dto.code },
+      });
       if (existing) {
         throw new ConflictException('Mã đơn hàng đã tồn tại');
       }
@@ -174,8 +201,24 @@ export class OrdersService {
     const dd = String(now.getDate()).padStart(2, '0');
     const dateStr = `${yyyy}${mm}${dd}`;
 
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    const startOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      0,
+      0,
+      0,
+      0,
+    );
+    const endOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+      999,
+    );
 
     const todayCount = await this.orderRepo
       .createQueryBuilder('o')
@@ -206,7 +249,9 @@ export class OrdersService {
     }
 
     if (dto.code && dto.code !== order.code) {
-      const existing = await this.orderRepo.findOne({ where: { code: dto.code } });
+      const existing = await this.orderRepo.findOne({
+        where: { code: dto.code },
+      });
       if (existing) {
         throw new ConflictException('Mã đơn hàng đã tồn tại');
       }
@@ -216,7 +261,8 @@ export class OrdersService {
       const orderEm = em.getRepository(Order);
       const lineEm = em.getRepository(OrderLine);
 
-      if (dto.customerGroup !== undefined) order.customerGroup = dto.customerGroup;
+      if (dto.customerGroup !== undefined)
+        order.customerGroup = dto.customerGroup;
       if (dto.note !== undefined) order.note = dto.note ?? null;
       if (dto.code !== undefined) order.code = dto.code;
 
@@ -256,7 +302,9 @@ export class OrdersService {
   //  Aggregate
   // ────────────────────────────────────────────────────────────────────────────
 
-  async aggregate(userId: number): Promise<OrderAggregation & { lines: AggregationLine[] }> {
+  async aggregate(
+    userId: number,
+  ): Promise<OrderAggregation & { lines: AggregationLine[] }> {
     const draftOrders = await this.orderRepo.find({
       where: { status: OrderStatus.DRAFT },
       relations: { lines: true },
@@ -337,9 +385,10 @@ export class OrdersService {
 
     const lines = aggregation.lines ?? [];
     const allCodes = lines.map((l) => l.componentCode);
-    const codeMap = allCodes.length > 0
-      ? await this.componentsService.getCodeMap(allCodes)
-      : new Map();
+    const codeMap =
+      allCodes.length > 0
+        ? await this.componentsService.getCodeMap(allCodes)
+        : new Map();
 
     const linesWithFlags: AggregationLineWithFlags[] = lines.map((l) => ({
       ...l,
@@ -363,7 +412,10 @@ export class OrdersService {
     mode: 'preview' | 'commit',
     userId = 0,
   ): Promise<OrderImportResult> {
-    const parsed = await this.excelService.parse<Record<string, unknown>>(buffer, ORDERS_SPEC);
+    const parsed = await this.excelService.parse<Record<string, unknown>>(
+      buffer,
+      ORDERS_SPEC,
+    );
 
     const allErrors: RowError[] = [...parsed.errors];
     const warnings: string[] = [];
@@ -385,12 +437,20 @@ export class OrdersService {
         continue;
       }
 
-      domainValidRows.push({ customerGroup, componentCode, quantity: qty, __row: excelRow });
+      domainValidRows.push({
+        customerGroup,
+        componentCode,
+        quantity: qty,
+        __row: excelRow,
+      });
     }
 
     // Group by customerGroup; sum quantities for same (customerGroup, componentCode)
     // Map: customerGroup → Map<componentCode, { qty, __row }>
-    const groupMap = new Map<string, Map<string, { quantity: number; __row: number }>>();
+    const groupMap = new Map<
+      string,
+      Map<string, { quantity: number; __row: number }>
+    >();
 
     for (const row of domainValidRows) {
       if (!groupMap.has(row.customerGroup)) {
@@ -401,7 +461,10 @@ export class OrdersService {
         const existing = codeMap.get(row.componentCode)!;
         existing.quantity += row.quantity;
       } else {
-        codeMap.set(row.componentCode, { quantity: row.quantity, __row: row.__row });
+        codeMap.set(row.componentCode, {
+          quantity: row.quantity,
+          __row: row.__row,
+        });
       }
     }
 
@@ -414,7 +477,9 @@ export class OrdersService {
     // Collect unregistered codes as warnings
     const allCodesInFile = new Set(domainValidRows.map((r) => r.componentCode));
     if (allCodesInFile.size > 0) {
-      const codeMapRes = await this.componentsService.getCodeMap([...allCodesInFile]);
+      const codeMapRes = await this.componentsService.getCodeMap([
+        ...allCodesInFile,
+      ]);
       for (const code of allCodesInFile) {
         if (!codeMapRes.has(code)) {
           warnings.push(`Mã ${code} chưa được khai báo tại Quản lý mã`);

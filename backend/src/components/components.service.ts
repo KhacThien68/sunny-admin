@@ -5,7 +5,11 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, In, Repository } from 'typeorm';
-import { ExcelService, RowError, SheetSpec } from '../common/excel/excel.service';
+import {
+  ExcelService,
+  RowError,
+  SheetSpec,
+} from '../common/excel/excel.service';
 import { ComponentEntity, Mob } from './component.entity';
 import { CreateComponentDto } from './dto/component.dto';
 import { UpdateComponentDto } from './dto/component.dto';
@@ -31,13 +35,30 @@ export interface ImportResult {
 }
 
 /** MoB values accepted in the Excel file (case-insensitive). */
-const MOB_ACCEPTED_VALUES = ['Không', 'Có thể', 'Bắt buộc', 'KHONG', 'CO_THE', 'BAT_BUOC'];
+const MOB_ACCEPTED_VALUES = [
+  'Không',
+  'Có thể',
+  'Bắt buộc',
+  'KHONG',
+  'CO_THE',
+  'BAT_BUOC',
+];
 
 const COMPONENTS_SPEC: SheetSpec = {
   columns: [
     { header: 'Component', key: 'code', required: true, type: 'string' },
-    { header: 'Component classification', key: 'classification', required: false, type: 'string' },
-    { header: 'Component description', key: 'description', required: false, type: 'string' },
+    {
+      header: 'Component classification',
+      key: 'classification',
+      required: false,
+      type: 'string',
+    },
+    {
+      header: 'Component description',
+      key: 'description',
+      required: false,
+      type: 'string',
+    },
     { header: 'UoM', key: 'uom', required: true, type: 'string' },
     {
       header: 'MoB (Make or Buy)',
@@ -47,16 +68,24 @@ const COMPONENTS_SPEC: SheetSpec = {
       enumValues: MOB_ACCEPTED_VALUES,
     },
     { header: 'MoQ', key: 'moq', required: false, type: 'number' },
-    { header: 'Inventory Levels', key: 'inventoryLevel', required: false, type: 'number' },
+    {
+      header: 'Inventory Levels',
+      key: 'inventoryLevel',
+      required: false,
+      type: 'number',
+    },
   ],
 };
 
 /** Map raw cell value (already validated against MOB_ACCEPTED_VALUES) to Mob enum. */
 function mapMob(raw: string): Mob {
   const trimmed = raw.trim();
-  if (trimmed === 'Không' || trimmed.toUpperCase() === 'KHONG') return Mob.KHONG;
-  if (trimmed === 'Có thể' || trimmed.toUpperCase() === 'CO_THE') return Mob.CO_THE;
-  if (trimmed === 'Bắt buộc' || trimmed.toUpperCase() === 'BAT_BUOC') return Mob.BAT_BUOC;
+  if (trimmed === 'Không' || trimmed.toUpperCase() === 'KHONG')
+    return Mob.KHONG;
+  if (trimmed === 'Có thể' || trimmed.toUpperCase() === 'CO_THE')
+    return Mob.CO_THE;
+  if (trimmed === 'Bắt buộc' || trimmed.toUpperCase() === 'BAT_BUOC')
+    return Mob.BAT_BUOC;
   return Mob.KHONG;
 }
 
@@ -194,7 +223,10 @@ export class ComponentsService {
     // We need to re-examine: parse already validated mob against MOB_ACCEPTED_VALUES,
     // so if there's a mob error it came from Giá trị không hợp lệ — replace with domain message.
     const processedErrors = parsed.errors.map((e) => {
-      if (e.column === 'MoB (Make or Buy)' && e.message === 'Giá trị không hợp lệ') {
+      if (
+        e.column === 'MoB (Make or Buy)' &&
+        e.message === 'Giá trị không hợp lệ'
+      ) {
         return { ...e, message: 'MoB phải là Không/Có thể/Bắt buộc' };
       }
       return e;
@@ -229,12 +261,15 @@ export class ComponentsService {
           const existing = await repo.findOne({ where: { code } });
           if (existing) {
             Object.assign(existing, {
-              classification: (row['classification'] as string) ?? existing.classification,
-              description: (row['description'] as string) ?? existing.description,
+              classification:
+                (row['classification'] as string) ?? existing.classification,
+              description:
+                (row['description'] as string) ?? existing.description,
               uom: row['uom'] as string,
               mob: row['mob'] as Mob,
               moq: (row['moq'] as number) ?? existing.moq,
-              inventoryLevel: (row['inventoryLevel'] as number) ?? existing.inventoryLevel,
+              inventoryLevel:
+                (row['inventoryLevel'] as number) ?? existing.inventoryLevel,
             });
             await repo.save(existing);
           } else {

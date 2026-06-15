@@ -1,4 +1,8 @@
-import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import { ExcelService } from '../common/excel/excel.service';
 import { AggregationLine, OrderAggregation } from './aggregation.entity';
@@ -44,7 +48,12 @@ async function buildOrdersBuffer(
 ): Promise<Buffer> {
   const wb = new ExcelJS.Workbook();
   const ws = wb.addWorksheet('Sheet1');
-  ws.addRow(['Customer group', 'Material', 'Material description', 'Order quantity']);
+  ws.addRow([
+    'Customer group',
+    'Material',
+    'Material description',
+    'Order quantity',
+  ]);
   for (const row of rows) {
     ws.addRow(row);
   }
@@ -57,8 +66,16 @@ const makeOrderRepo = (orders: Order[] = []) => ({
   find: jest.fn().mockResolvedValue(orders),
   findOne: jest.fn(),
   count: jest.fn().mockResolvedValue(orders.length),
-  create: jest.fn((dto: any) => ({ id: Math.random(), createdAt: new Date(), ...dto })),
-  save: jest.fn(async (e: any) => ({ id: Math.random(), createdAt: new Date(), ...e })),
+  create: jest.fn((dto: any) => ({
+    id: Math.random(),
+    createdAt: new Date(),
+    ...dto,
+  })),
+  save: jest.fn(async (e: any) => ({
+    id: Math.random(),
+    createdAt: new Date(),
+    ...e,
+  })),
   delete: jest.fn(),
   createQueryBuilder: jest.fn().mockReturnValue({
     where: jest.fn().mockReturnThis(),
@@ -77,8 +94,16 @@ const makeOrderLineRepo = () => ({
 const makeAggregationRepo = (aggregations: OrderAggregation[] = []) => ({
   find: jest.fn().mockResolvedValue(aggregations),
   findOne: jest.fn(),
-  create: jest.fn((dto: any) => ({ id: Math.random(), createdAt: new Date(), ...dto })),
-  save: jest.fn(async (e: any) => ({ id: Math.random(), createdAt: new Date(), ...e })),
+  create: jest.fn((dto: any) => ({
+    id: Math.random(),
+    createdAt: new Date(),
+    ...dto,
+  })),
+  save: jest.fn(async (e: any) => ({
+    id: Math.random(),
+    createdAt: new Date(),
+    ...e,
+  })),
 });
 
 const makeAggregationLineRepo = () => ({
@@ -117,13 +142,19 @@ const makeDataSource = () => {
     getRepository: jest.fn().mockImplementation((entity: any) => {
       if (entity === Order) {
         return {
-          create: jest.fn((dto: any) => ({ id: Math.random(), createdAt: new Date(), ...dto })),
+          create: jest.fn((dto: any) => ({
+            id: Math.random(),
+            createdAt: new Date(),
+            ...dto,
+          })),
           save: jest.fn(async (e: any) => {
             const saved = { id: Math.random(), createdAt: new Date(), ...e };
             transactionMocks.orderSaves.push(saved);
             return saved;
           }),
-          delete: jest.fn(async (q: any) => { transactionMocks.orderDeletes.push(q); }),
+          delete: jest.fn(async (q: any) => {
+            transactionMocks.orderDeletes.push(q);
+          }),
           findOne: jest.fn().mockResolvedValue(null),
         };
       }
@@ -135,12 +166,18 @@ const makeDataSource = () => {
             transactionMocks.lineSaves.push(saved);
             return saved;
           }),
-          delete: jest.fn(async (q: any) => { transactionMocks.lineDeletes.push(q); }),
+          delete: jest.fn(async (q: any) => {
+            transactionMocks.lineDeletes.push(q);
+          }),
         };
       }
       if (entity === OrderAggregation) {
         return {
-          create: jest.fn((dto: any) => ({ id: 99, createdAt: new Date(), ...dto })),
+          create: jest.fn((dto: any) => ({
+            id: 99,
+            createdAt: new Date(),
+            ...dto,
+          })),
           save: jest.fn(async (e: any) => {
             const saved = { id: 99, createdAt: new Date(), ...e };
             transactionMocks.aggSaves.push(saved);
@@ -198,7 +235,6 @@ function makeService(
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 describe('OrdersService', () => {
-
   // ── aggregate ────────────────────────────────────────────────────────────────
 
   describe('aggregate', () => {
@@ -365,8 +401,12 @@ describe('OrdersService', () => {
 
       // Two distinct customer groups → 2 orders saved in transaction
       const orderSaves = dataSource._mocks.orderSaves;
-      const groupAOrder = orderSaves.find((o: any) => o.customerGroup === 'Group A');
-      const groupBOrder = orderSaves.find((o: any) => o.customerGroup === 'Group B');
+      const groupAOrder = orderSaves.find(
+        (o: any) => o.customerGroup === 'Group A',
+      );
+      const groupBOrder = orderSaves.find(
+        (o: any) => o.customerGroup === 'Group B',
+      );
       expect(groupAOrder).toBeDefined();
       expect(groupBOrder).toBeDefined();
     });
@@ -391,7 +431,9 @@ describe('OrdersService', () => {
       expect(result.valid).toBe(1);
 
       const lineSaves = dataSource._mocks.lineSaves;
-      const mat001Line = lineSaves.find((l: any) => l.componentCode === 'MAT-001');
+      const mat001Line = lineSaves.find(
+        (l: any) => l.componentCode === 'MAT-001',
+      );
       expect(mat001Line).toBeDefined();
       expect(mat001Line.quantity).toBe(15);
     });
@@ -407,7 +449,9 @@ describe('OrdersService', () => {
       const result = await service.importFromExcel(buf, 'preview');
 
       expect(result.errors.length).toBe(2);
-      const err = result.errors.find((e) => e.message === 'Số lượng phải lớn hơn 0');
+      const err = result.errors.find(
+        (e) => e.message === 'Số lượng phải lớn hơn 0',
+      );
       expect(err).toBeDefined();
       expect(err!.row).toBe(2); // first data row = Excel row 2
     });
@@ -422,7 +466,9 @@ describe('OrdersService', () => {
       const result = await service.importFromExcel(buf, 'preview');
 
       expect(result.errors).toHaveLength(0);
-      expect(result.warnings.some((w) => w.includes('UNREGISTERED-MAT'))).toBe(true);
+      expect(result.warnings.some((w) => w.includes('UNREGISTERED-MAT'))).toBe(
+        true,
+      );
     });
   });
 });

@@ -181,7 +181,11 @@ export class ExcelService {
   // ── Private helpers ────────────────────────────────────────────────────────
 
   private cellIsEmpty(cell: ExcelJS.Cell): boolean {
-    return cell.value === null || cell.value === undefined || String(cell.value).trim() === '';
+    return (
+      cell.value === null ||
+      cell.value === undefined ||
+      String(cell.value).trim() === ''
+    );
   }
 
   /**

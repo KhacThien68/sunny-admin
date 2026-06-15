@@ -46,9 +46,11 @@ export const ENDPOINTS = {
     unassignedComponents: '/purchasing-teams/unassigned-components',
     byId: (id: number) => `/purchasing-teams/${id}`,
     members: (id: number) => `/purchasing-teams/${id}/members`,
-    memberById: (id: number, memberId: number) => `/purchasing-teams/${id}/members/${memberId}`,
+    memberById: (id: number, memberId: number) =>
+      `/purchasing-teams/${id}/members/${memberId}`,
     scopes: (id: number) => `/purchasing-teams/${id}/scopes`,
-    scopeById: (id: number, scopeId: number) => `/purchasing-teams/${id}/scopes/${scopeId}`,
+    scopeById: (id: number, scopeId: number) =>
+      `/purchasing-teams/${id}/scopes/${scopeId}`,
   },
   orders: {
     base: '/orders',
@@ -61,7 +63,8 @@ export const ENDPOINTS = {
   mrp: {
     runs: '/mrp/runs',
     runById: (id: number) => `/mrp/runs/${id}`,
-    lines: (runId: number, lineId: number) => `/mrp/runs/${runId}/lines/${lineId}`,
+    lines: (runId: number, lineId: number) =>
+      `/mrp/runs/${runId}/lines/${lineId}`,
     closeRound: (runId: number) => `/mrp/runs/${runId}/close-round`,
   },
   outputs: {

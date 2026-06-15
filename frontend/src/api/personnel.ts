@@ -1,6 +1,10 @@
 import { apiClient } from './client'
 import { ENDPOINTS } from '../constants/endpoints'
-import type { Personnel, CreatePersonnelBody, UpdatePersonnelBody } from '../types'
+import type {
+  Personnel,
+  CreatePersonnelBody,
+  UpdatePersonnelBody,
+} from '../types'
 
 export type { Personnel, CreatePersonnelBody, UpdatePersonnelBody }
 
@@ -9,7 +13,9 @@ export async function getPersonnel(): Promise<Personnel[]> {
   return res.data
 }
 
-export async function createPersonnel(body: CreatePersonnelBody): Promise<Personnel> {
+export async function createPersonnel(
+  body: CreatePersonnelBody,
+): Promise<Personnel> {
   const res = await apiClient.post<Personnel>(ENDPOINTS.personnel.base, body)
   return res.data
 }
@@ -18,7 +24,10 @@ export async function updatePersonnel(
   id: number,
   body: UpdatePersonnelBody,
 ): Promise<Personnel> {
-  const res = await apiClient.patch<Personnel>(ENDPOINTS.personnel.byId(id), body)
+  const res = await apiClient.patch<Personnel>(
+    ENDPOINTS.personnel.byId(id),
+    body,
+  )
   return res.data
 }
 

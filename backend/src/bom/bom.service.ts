@@ -6,7 +6,11 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
-import { ExcelService, RowError, SheetSpec } from '../common/excel/excel.service';
+import {
+  ExcelService,
+  RowError,
+  SheetSpec,
+} from '../common/excel/excel.service';
 import { ComponentsService } from '../components/components.service';
 import { BomLine } from './bom-line.entity';
 import { CreateBomLineDto, UpdateBomLineDto } from './dto/bom-line.dto';
@@ -36,10 +40,25 @@ export interface BomImportResult {
 const BOM_SPEC: SheetSpec = {
   columns: [
     { header: 'Material', key: 'parentCode', required: true, type: 'string' },
-    { header: 'Material description', key: 'parentDescription', required: false, type: 'string' },
+    {
+      header: 'Material description',
+      key: 'parentDescription',
+      required: false,
+      type: 'string',
+    },
     { header: 'Component', key: 'childCode', required: true, type: 'string' },
-    { header: 'Component description', key: 'childDescription', required: false, type: 'string' },
-    { header: 'Quantity', key: 'quantityPerUnit', required: true, type: 'number' },
+    {
+      header: 'Component description',
+      key: 'childDescription',
+      required: false,
+      type: 'string',
+    },
+    {
+      header: 'Quantity',
+      key: 'quantityPerUnit',
+      required: true,
+      type: 'number',
+    },
   ],
 };
 
@@ -66,7 +85,9 @@ export class BomService {
   //  Read
   // ────────────────────────────────────────────────────────────────────────────
 
-  async findAll(query: { parentCode?: string } = {}): Promise<BomLineWithFlags[]> {
+  async findAll(
+    query: { parentCode?: string } = {},
+  ): Promise<BomLineWithFlags[]> {
     const { parentCode } = query;
 
     const qb = this.bomRepo
@@ -84,7 +105,10 @@ export class BomService {
 
     // Bulk-load codes to avoid N+1
     const allCodes = [
-      ...new Set([...lines.map((l) => l.parentCode), ...lines.map((l) => l.childCode)]),
+      ...new Set([
+        ...lines.map((l) => l.parentCode),
+        ...lines.map((l) => l.childCode),
+      ]),
     ];
     const codeMap = await this.componentsService.getCodeMap(allCodes);
 
@@ -120,9 +144,16 @@ export class BomService {
 
     // Cycle check: load all current edges and check if adding parent→child creates a cycle
     const allEdges = await this.bomRepo.find();
-    const cyclePath = this.detectCycle(dto.parentCode, dto.childCode, allEdges, CYCLE_DEPTH_CAP);
+    const cyclePath = this.detectCycle(
+      dto.parentCode,
+      dto.childCode,
+      allEdges,
+      CYCLE_DEPTH_CAP,
+    );
     if (cyclePath) {
-      throw new BadRequestException(`BoM bị lặp vòng: ${cyclePath.join(' → ')}`);
+      throw new BadRequestException(
+        `BoM bị lặp vòng: ${cyclePath.join(' → ')}`,
+      );
     }
 
     const line = this.bomRepo.create({
@@ -183,7 +214,11 @@ export class BomService {
 
     const codeMap = await this.componentsService.getCodeMap([...allCodes]);
 
-    const buildNode = (code: string, qty: number, depth: number): BomTreeNode => {
+    const buildNode = (
+      code: string,
+      qty: number,
+      depth: number,
+    ): BomTreeNode => {
       const comp = codeMap.get(code);
       const node: BomTreeNode = {
         code,
@@ -237,7 +272,10 @@ export class BomService {
     buffer: Buffer,
     mode: 'preview' | 'commit',
   ): Promise<BomImportResult> {
-    const parsed = await this.excelService.parse<Record<string, unknown>>(buffer, BOM_SPEC);
+    const parsed = await this.excelService.parse<Record<string, unknown>>(
+      buffer,
+      BOM_SPEC,
+    );
 
     // Start with errors from the generic parser (missing fields, type errors)
     const allErrors: RowError[] = [...parsed.errors];
@@ -270,7 +308,12 @@ export class BomService {
         continue;
       }
 
-      domainValidRows.push({ parentCode, childCode, quantityPerUnit: qty, __row: excelRow });
+      domainValidRows.push({
+        parentCode,
+        childCode,
+        quantityPerUnit: qty,
+        __row: excelRow,
+      });
     }
 
     // Deduplicate within file: last (parentCode, childCode) pair wins
@@ -286,7 +329,9 @@ export class BomService {
       ...dedupedRows.map((r) => r.childCode),
     ]);
     if (allCodesInFile.size > 0) {
-      const codeMap = await this.componentsService.getCodeMap([...allCodesInFile]);
+      const codeMap = await this.componentsService.getCodeMap([
+        ...allCodesInFile,
+      ]);
       for (const code of allCodesInFile) {
         if (!codeMap.has(code)) {
           warnings.push(`Mã ${code} chưa được khai báo tại Quản lý mã`);
@@ -296,11 +341,18 @@ export class BomService {
 
     // Cycle check against combined existing + file edges
     const existingEdges = await this.bomRepo.find();
-    const combinedEdges: Array<{ parentCode: string; childCode: string }> = [...existingEdges];
+    const combinedEdges: Array<{ parentCode: string; childCode: string }> = [
+      ...existingEdges,
+    ];
     const cleanRows: ParsedBomRow[] = [];
 
     for (const row of dedupedRows) {
-      const cyclePath = this.detectCycle(row.parentCode, row.childCode, combinedEdges, CYCLE_DEPTH_CAP);
+      const cyclePath = this.detectCycle(
+        row.parentCode,
+        row.childCode,
+        combinedEdges,
+        CYCLE_DEPTH_CAP,
+      );
       if (cyclePath) {
         allErrors.push({
           row: row.__row,
@@ -309,7 +361,10 @@ export class BomService {
         });
       } else {
         // Add this edge to the running set so subsequent rows in the same file see it
-        combinedEdges.push({ parentCode: row.parentCode, childCode: row.childCode });
+        combinedEdges.push({
+          parentCode: row.parentCode,
+          childCode: row.childCode,
+        });
         cleanRows.push(row);
       }
     }
@@ -321,7 +376,10 @@ export class BomService {
           // Strip __row before persisting — it is a parse-time annotation only
           const { __row: _omit, ...rowData } = row;
           const existing = await repo.findOne({
-            where: { parentCode: rowData.parentCode, childCode: rowData.childCode },
+            where: {
+              parentCode: rowData.parentCode,
+              childCode: rowData.childCode,
+            },
           });
           if (existing) {
             existing.quantityPerUnit = rowData.quantityPerUnit;
@@ -346,7 +404,9 @@ export class BomService {
   //  MRP helper
   // ────────────────────────────────────────────────────────────────────────────
 
-  async getAllEdges(): Promise<{ parentCode: string; childCode: string; qtyPerUnit: number }[]> {
+  async getAllEdges(): Promise<
+    { parentCode: string; childCode: string; qtyPerUnit: number }[]
+  > {
     const lines = await this.bomRepo.find();
     return lines.map((l) => ({
       parentCode: l.parentCode,

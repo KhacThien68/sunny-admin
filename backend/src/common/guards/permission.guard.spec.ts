@@ -6,7 +6,11 @@ import { ScreenKey } from '../screen-key';
 import { REQUIRED_PERMISSION_KEY } from '../decorators/require-permission.decorator';
 import { PermissionGuard } from './permission.guard';
 
-function makeContext(user: any, handler: object = {}, cls: object = {}): ExecutionContext {
+function makeContext(
+  user: any,
+  handler: object = {},
+  cls: object = {},
+): ExecutionContext {
   return {
     getHandler: () => handler,
     getClass: () => cls,
@@ -69,7 +73,11 @@ describe('PermissionGuard', () => {
     const ctx = makeContext({ sub: 2, isAdmin: false });
 
     await expect(guard.canActivate(ctx)).resolves.toBe(true);
-    expect(permissionsService.hasPermission).toHaveBeenCalledWith(2, ScreenKey.COMPONENTS, 'read');
+    expect(permissionsService.hasPermission).toHaveBeenCalledWith(
+      2,
+      ScreenKey.COMPONENTS,
+      'read',
+    );
   });
 
   it('should throw ForbiddenException when permission flag is false', async () => {

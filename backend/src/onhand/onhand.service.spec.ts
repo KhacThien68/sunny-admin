@@ -6,7 +6,11 @@ import { OnhandService } from './onhand.service';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function makeRecord(id: number, componentCode: string, quantity = 0): OnhandInventory {
+function makeRecord(
+  id: number,
+  componentCode: string,
+  quantity = 0,
+): OnhandInventory {
   const record = new OnhandInventory();
   record.id = id;
   record.componentCode = componentCode;
@@ -33,7 +37,11 @@ const makeRepo = (records: OnhandInventory[] = []) => ({
   find: jest.fn().mockResolvedValue(records),
   findOne: jest.fn(),
   create: jest.fn((dto: any) => ({ ...dto })),
-  save: jest.fn(async (e: any) => ({ id: Math.random(), updatedAt: new Date(), ...e })),
+  save: jest.fn(async (e: any) => ({
+    id: Math.random(),
+    updatedAt: new Date(),
+    ...e,
+  })),
   delete: jest.fn(),
 });
 
@@ -55,7 +63,11 @@ const makeDataSource = () => ({
       getRepository: jest.fn().mockReturnValue({
         findOne: jest.fn().mockResolvedValue(null),
         create: jest.fn((dto: any) => ({ ...dto })),
-        save: jest.fn(async (e: any) => ({ id: Math.random(), updatedAt: new Date(), ...e })),
+        save: jest.fn(async (e: any) => ({
+          id: Math.random(),
+          updatedAt: new Date(),
+          ...e,
+        })),
       }),
     };
     return cb(em);
@@ -70,13 +82,17 @@ function makeService(
   const componentsService = makeComponentsService(registeredCodes);
   const excelService = new ExcelService();
   const dataSource = makeDataSource();
-  return new OnhandService(repo as any, componentsService as any, excelService, dataSource as any);
+  return new OnhandService(
+    repo as any,
+    componentsService as any,
+    excelService,
+    dataSource as any,
+  );
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 describe('OnhandService', () => {
-
   // ── upsert ────────────────────────────────────────────────────────────────────
 
   describe('upsert', () => {
@@ -87,7 +103,10 @@ describe('OnhandService', () => {
 
       const result = await service.upsert('COMP-A', 10);
 
-      expect(repo.create).toHaveBeenCalledWith({ componentCode: 'COMP-A', quantity: 10 });
+      expect(repo.create).toHaveBeenCalledWith({
+        componentCode: 'COMP-A',
+        quantity: 10,
+      });
       expect(repo.save).toHaveBeenCalled();
       expect(result.componentCode).toBe('COMP-A');
       expect(result.quantity).toBe(10);
@@ -108,7 +127,9 @@ describe('OnhandService', () => {
 
     it('throws BadRequestException for empty componentCode', async () => {
       const service = makeService();
-      await expect(service.upsert('  ', 5)).rejects.toThrow(BadRequestException);
+      await expect(service.upsert('  ', 5)).rejects.toThrow(
+        BadRequestException,
+      );
       await expect(service.upsert('', 5)).rejects.toThrow(BadRequestException);
     });
 
@@ -119,7 +140,10 @@ describe('OnhandService', () => {
 
       await service.upsert('  COMP-B  ', 3);
 
-      expect(repo.create).toHaveBeenCalledWith({ componentCode: 'COMP-B', quantity: 3 });
+      expect(repo.create).toHaveBeenCalledWith({
+        componentCode: 'COMP-B',
+        quantity: 3,
+      });
     });
   });
 
@@ -159,7 +183,10 @@ describe('OnhandService', () => {
     });
 
     it('returns actual quantities for known codes', async () => {
-      const records = [makeRecord(1, 'COMP-A', 15), makeRecord(2, 'COMP-B', 30)];
+      const records = [
+        makeRecord(1, 'COMP-A', 15),
+        makeRecord(2, 'COMP-B', 30),
+      ];
       const service = makeService(records);
       const repo = (service as any).onhandRepo;
       repo.find.mockResolvedValue(records);
@@ -183,14 +210,14 @@ describe('OnhandService', () => {
   describe('importFromExcel', () => {
     it('returns RowError when On-Hand Inventory is negative', async () => {
       const service = makeService([], []);
-      const buf = await buildOnhandBuffer([
-        ['COMP-A', null, -5],
-      ]);
+      const buf = await buildOnhandBuffer([['COMP-A', null, -5]]);
 
       const result = await service.importFromExcel(buf, 'preview');
 
       expect(result.errors.length).toBeGreaterThan(0);
-      const qtyError = result.errors.find((e) => e.message === 'Tồn kho không được âm');
+      const qtyError = result.errors.find(
+        (e) => e.message === 'Tồn kho không được âm',
+      );
       expect(qtyError).toBeDefined();
       // First data row is Excel row 2 (row 1 = headers)
       expect(qtyError!.row).toBe(2);
@@ -198,14 +225,14 @@ describe('OnhandService', () => {
 
     it('issues warning (not error) for unregistered code', async () => {
       const service = makeService([], []); // no registered codes
-      const buf = await buildOnhandBuffer([
-        ['COMP-UNKNOWN', null, 10],
-      ]);
+      const buf = await buildOnhandBuffer([['COMP-UNKNOWN', null, 10]]);
 
       const result = await service.importFromExcel(buf, 'preview');
 
       expect(result.errors).toHaveLength(0);
-      expect(result.warnings.some((w) => w.includes('COMP-UNKNOWN'))).toBe(true);
+      expect(result.warnings.some((w) => w.includes('COMP-UNKNOWN'))).toBe(
+        true,
+      );
     });
 
     it('duplicate codes in file — last row wins', async () => {
@@ -223,9 +250,7 @@ describe('OnhandService', () => {
 
     it('accepts zero quantity (boundary: qty >= 0 is valid)', async () => {
       const service = makeService([], ['COMP-A']);
-      const buf = await buildOnhandBuffer([
-        ['COMP-A', null, 0],
-      ]);
+      const buf = await buildOnhandBuffer([['COMP-A', null, 0]]);
 
       const result = await service.importFromExcel(buf, 'preview');
 
@@ -236,9 +261,7 @@ describe('OnhandService', () => {
     it('commits valid rows in transaction on commit mode', async () => {
       const service = makeService([], ['COMP-A']);
       const dataSource = (service as any).dataSource;
-      const buf = await buildOnhandBuffer([
-        ['COMP-A', null, 10],
-      ]);
+      const buf = await buildOnhandBuffer([['COMP-A', null, 10]]);
 
       const result = await service.importFromExcel(buf, 'commit');
 

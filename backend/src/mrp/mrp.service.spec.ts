@@ -1,12 +1,17 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ComponentEntity, Mob } from '../components/component.entity';
-import { AggregationLine, OrderAggregation } from '../orders/aggregation.entity';
+import {
+  AggregationLine,
+  OrderAggregation,
+} from '../orders/aggregation.entity';
 import { MrpLine, MrpRun, MrpRunStatus } from './mrp-run.entity';
 import { MrpService } from './mrp.service';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function makeAggregation(lines: { componentCode: string; totalQty: number }[]): OrderAggregation & { lines: AggregationLine[] } {
+function makeAggregation(
+  lines: { componentCode: string; totalQty: number }[],
+): OrderAggregation & { lines: AggregationLine[] } {
   const agg = new OrderAggregation();
   agg.id = 1;
   agg.createdById = 1;
@@ -22,7 +27,12 @@ function makeAggregation(lines: { componentCode: string; totalQty: number }[]): 
   return agg as any;
 }
 
-function makeComponent(code: string, mob: Mob, moq = 0, inventoryLevel = 0): ComponentEntity {
+function makeComponent(
+  code: string,
+  mob: Mob,
+  moq = 0,
+  inventoryLevel = 0,
+): ComponentEntity {
   const c = new ComponentEntity();
   c.id = 1;
   c.code = code;
@@ -68,7 +78,9 @@ function makeRun(overrides: Partial<MrpRun> = {}): MrpRun {
 const makeRunRepo = (runs: MrpRun[] = []) => ({
   find: jest.fn().mockResolvedValue(runs),
   findOne: jest.fn().mockResolvedValue(runs[0] ?? null),
-  create: jest.fn((dto: Partial<MrpRun>) => Object.assign(new MrpRun(), { id: 1, ...dto })),
+  create: jest.fn((dto: Partial<MrpRun>) =>
+    Object.assign(new MrpRun(), { id: 1, ...dto }),
+  ),
   save: jest.fn(async (entity: MrpRun) => entity),
   update: jest.fn().mockResolvedValue({ affected: 1 }),
 });
@@ -76,7 +88,9 @@ const makeRunRepo = (runs: MrpRun[] = []) => ({
 const makeLineRepo = (lines: MrpLine[] = []) => ({
   find: jest.fn().mockResolvedValue(lines),
   findOne: jest.fn().mockResolvedValue(lines[0] ?? null),
-  create: jest.fn((dto: Partial<MrpLine>) => Object.assign(new MrpLine(), { id: lines.length + 1, ...dto })),
+  create: jest.fn((dto: Partial<MrpLine>) =>
+    Object.assign(new MrpLine(), { id: lines.length + 1, ...dto }),
+  ),
   save: jest.fn(async (entity: MrpLine) => entity),
   update: jest.fn().mockResolvedValue({ affected: 1 }),
 });
@@ -94,10 +108,12 @@ function buildService(overrides: {
   const lineRepo = makeLineRepo(overrides.lines ?? []);
 
   const ordersService = {
-    getLatestAggregation: jest.fn().mockResolvedValue(
-      overrides.aggregation ??
-        makeAggregation([{ componentCode: 'CHA', totalQty: 50 }]),
-    ),
+    getLatestAggregation: jest
+      .fn()
+      .mockResolvedValue(
+        overrides.aggregation ??
+          makeAggregation([{ componentCode: 'CHA', totalQty: 50 }]),
+      ),
   };
 
   const defaultCodeMap = new Map<string, ComponentEntity>([
@@ -105,11 +121,16 @@ function buildService(overrides: {
   ]);
 
   const componentsService = {
-    getCodeMap: jest.fn().mockResolvedValue(overrides.codeMap ?? defaultCodeMap),
-    findByCode: jest.fn().mockImplementation(
-      overrides.findByCode ??
-        ((code: string) => (overrides.codeMap ?? defaultCodeMap).get(code) ?? null),
-    ),
+    getCodeMap: jest
+      .fn()
+      .mockResolvedValue(overrides.codeMap ?? defaultCodeMap),
+    findByCode: jest
+      .fn()
+      .mockImplementation(
+        overrides.findByCode ??
+          ((code: string) =>
+            (overrides.codeMap ?? defaultCodeMap).get(code) ?? null),
+      ),
   };
 
   const onhandService = {
@@ -135,15 +156,29 @@ function buildService(overrides: {
         getRepository: jest.fn((entity: any) => {
           if (entity === MrpRun || entity?.name === 'MrpRun') {
             return {
-              create: (dto: Partial<MrpRun>) => Object.assign(new MrpRun(), { id: savedRuns.length + 1, ...dto }),
-              save: jest.fn(async (r: MrpRun) => { savedRuns.push(r); return r; }),
+              create: (dto: Partial<MrpRun>) =>
+                Object.assign(new MrpRun(), {
+                  id: savedRuns.length + 1,
+                  ...dto,
+                }),
+              save: jest.fn(async (r: MrpRun) => {
+                savedRuns.push(r);
+                return r;
+              }),
               update: jest.fn().mockResolvedValue({ affected: 1 }),
             };
           }
           if (entity === MrpLine || entity?.name === 'MrpLine') {
             return {
-              create: (dto: Partial<MrpLine>) => Object.assign(new MrpLine(), { id: savedLines.length + 1, ...dto }),
-              save: jest.fn(async (l: MrpLine) => { savedLines.push(l); return l; }),
+              create: (dto: Partial<MrpLine>) =>
+                Object.assign(new MrpLine(), {
+                  id: savedLines.length + 1,
+                  ...dto,
+                }),
+              save: jest.fn(async (l: MrpLine) => {
+                savedLines.push(l);
+                return l;
+              }),
               find: jest.fn().mockResolvedValue(overrides.lines ?? []),
               update: jest.fn().mockResolvedValue({ affected: 1 }),
             };
@@ -213,7 +248,9 @@ describe('MrpService', () => {
   // Test 3: createRun no aggregation → propagates NotFoundException
   it('createRun with no aggregation propagates NotFoundException', async () => {
     const ordersService = {
-      getLatestAggregation: jest.fn().mockRejectedValue(new NotFoundException('Chưa có lần tổng hợp nào')),
+      getLatestAggregation: jest
+        .fn()
+        .mockRejectedValue(new NotFoundException('Chưa có lần tổng hợp nào')),
     };
 
     const service = new MrpService(
@@ -251,8 +288,12 @@ describe('MrpService', () => {
       {} as any,
     );
 
-    await expect(service.updateLine(1, 1, 10)).rejects.toThrow(BadRequestException);
-    await expect(service.updateLine(1, 1, 10)).rejects.toThrow('Dòng đã bị khoá');
+    await expect(service.updateLine(1, 1, 10)).rejects.toThrow(
+      BadRequestException,
+    );
+    await expect(service.updateLine(1, 1, 10)).rejects.toThrow(
+      'Dòng đã bị khoá',
+    );
   });
 
   // Test 5: updateLine on non-current round → BadRequest
@@ -276,8 +317,12 @@ describe('MrpService', () => {
       {} as any,
     );
 
-    await expect(service.updateLine(1, 1, 10)).rejects.toThrow(BadRequestException);
-    await expect(service.updateLine(1, 1, 10)).rejects.toThrow('Chỉ được sửa vòng hiện tại');
+    await expect(service.updateLine(1, 1, 10)).rejects.toThrow(
+      BadRequestException,
+    );
+    await expect(service.updateLine(1, 1, 10)).rejects.toThrow(
+      'Chỉ được sửa vòng hiện tại',
+    );
   });
 
   // Test 6: updateLine purchase 10 on CO_THE demand 49 → manufacturing 39
@@ -301,7 +346,9 @@ describe('MrpService', () => {
     lineRepo.save = jest.fn().mockImplementation(async (l: MrpLine) => l);
 
     const componentsService = {
-      findByCode: jest.fn().mockResolvedValue(makeComponent('CHA', Mob.CO_THE, 5, 2)),
+      findByCode: jest
+        .fn()
+        .mockResolvedValue(makeComponent('CHA', Mob.CO_THE, 5, 2)),
       getCodeMap: jest.fn(),
     };
 
@@ -346,15 +393,22 @@ describe('MrpService', () => {
           getRepository: (entity: any) => {
             if (entity === MrpRun) {
               return {
-                save: jest.fn(async (r: MrpRun) => { savedRun = r; return r; }),
+                save: jest.fn(async (r: MrpRun) => {
+                  savedRun = r;
+                  return r;
+                }),
                 update: jest.fn(),
               };
             }
             if (entity === MrpLine) {
               return {
-                create: (dto: Partial<MrpLine>) => Object.assign(new MrpLine(), dto),
-                save: jest.fn(async (l: MrpLine) => { savedRound2Lines.push(l); return l; }),
-                find: jest.fn().mockResolvedValue([chaLine]),  // all locked lines
+                create: (dto: Partial<MrpLine>) =>
+                  Object.assign(new MrpLine(), dto),
+                save: jest.fn(async (l: MrpLine) => {
+                  savedRound2Lines.push(l);
+                  return l;
+                }),
+                find: jest.fn().mockResolvedValue([chaLine]), // all locked lines
                 update: jest.fn(),
               };
             }
@@ -366,13 +420,17 @@ describe('MrpService', () => {
     };
 
     const runRepo = makeRunRepo([run]);
-    runRepo.findOne = jest.fn()
-      .mockResolvedValueOnce(run)     // first call in closeRound
-      .mockResolvedValueOnce(makeRun({ currentRound: 2, status: MrpRunStatus.RUNNING })); // for getRun reload
+    runRepo.findOne = jest
+      .fn()
+      .mockResolvedValueOnce(run) // first call in closeRound
+      .mockResolvedValueOnce(
+        makeRun({ currentRound: 2, status: MrpRunStatus.RUNNING }),
+      ); // for getRun reload
 
     const lineRepo = makeLineRepo([chaLine]);
-    lineRepo.find = jest.fn()
-      .mockResolvedValueOnce([chaLine])           // current round lines
+    lineRepo.find = jest
+      .fn()
+      .mockResolvedValueOnce([chaLine]) // current round lines
       .mockResolvedValueOnce([chaLine, ...savedRound2Lines]); // getRun reload
 
     const componentsService = {
@@ -405,14 +463,18 @@ describe('MrpService', () => {
       rounds: [
         { round: 1, locked: true, lines: [chaLine] },
         {
-          round: 2, locked: false, lines: [{
-            ...new MrpLine(),
-            componentCode: 'CON',
-            orderQty: 98,
-            demand: 98,
-            purchase: 98,  // BAT_BUOC moq 5 → purchase = max(98,5) = 98
-            manufacturing: 0,
-          }],
+          round: 2,
+          locked: false,
+          lines: [
+            {
+              ...new MrpLine(),
+              componentCode: 'CON',
+              orderQty: 98,
+              demand: 98,
+              purchase: 98, // BAT_BUOC moq 5 → purchase = max(98,5) = 98
+              manufacturing: 0,
+            },
+          ],
         },
       ],
     });
@@ -420,16 +482,18 @@ describe('MrpService', () => {
     const result = await service.closeRound(1);
 
     // Verify round 2 would have CON with orderQty 98
-    const round2 = result.rounds.find(r => r.round === 2);
+    const round2 = result.rounds.find((r) => r.round === 2);
     expect(round2).toBeDefined();
-    const conLine = round2!.lines.find(l => l.componentCode === 'CON');
+    const conLine = round2!.lines.find((l) => l.componentCode === 'CON');
     expect(conLine).toBeDefined();
     expect(conLine!.orderQty).toBe(98);
   });
 
   // Test 8: closeRound when all manufacturing 0 → DONE, no new lines
   it('closeRound when all manufacturing 0 → status DONE', async () => {
-    const doneLines = [makeLine({ manufacturing: 0, demand: 0, locked: false, round: 1 })];
+    const doneLines = [
+      makeLine({ manufacturing: 0, demand: 0, locked: false, round: 1 }),
+    ];
     const run = makeRun({ currentRound: 1, status: MrpRunStatus.RUNNING });
 
     let savedRunStatus: MrpRunStatus | null = null;
@@ -440,7 +504,10 @@ describe('MrpService', () => {
           getRepository: (entity: any) => {
             if (entity === MrpRun) {
               return {
-                save: jest.fn(async (r: MrpRun) => { savedRunStatus = r.status; return r; }),
+                save: jest.fn(async (r: MrpRun) => {
+                  savedRunStatus = r.status;
+                  return r;
+                }),
                 update: jest.fn(),
               };
             }
@@ -460,7 +527,8 @@ describe('MrpService', () => {
     };
 
     const runRepo = makeRunRepo([run]);
-    runRepo.findOne = jest.fn()
+    runRepo.findOne = jest
+      .fn()
       .mockResolvedValueOnce(run)
       .mockResolvedValueOnce(makeRun({ status: MrpRunStatus.DONE }));
 
@@ -475,7 +543,10 @@ describe('MrpService', () => {
       runRepo as any,
       lineRepo as any,
       {} as any,
-      { getCodeMap: jest.fn().mockResolvedValue(new Map()), findByCode: jest.fn() } as any,
+      {
+        getCodeMap: jest.fn().mockResolvedValue(new Map()),
+        findByCode: jest.fn(),
+      } as any,
       { getQuantityMap: jest.fn().mockResolvedValue(new Map()) } as any,
       bomService as any,
       { findAll: jest.fn().mockResolvedValue([]) } as any,

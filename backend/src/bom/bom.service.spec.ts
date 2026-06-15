@@ -1,4 +1,8 @@
-import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import { ExcelService } from '../common/excel/excel.service';
 import { BomLine } from './bom-line.entity';
@@ -87,13 +91,17 @@ function makeService(
   const componentsService = makeComponentsService(registeredCodes);
   const excelService = new ExcelService();
   const dataSource = makeDataSource();
-  return new BomService(repo as any, componentsService as any, excelService, dataSource as any);
+  return new BomService(
+    repo as any,
+    componentsService as any,
+    excelService,
+    dataSource as any,
+  );
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 describe('BomService', () => {
-
   // ── Cycle detection ─────────────────────────────────────────────────────────
 
   describe('detectCycle', () => {
@@ -160,7 +168,11 @@ describe('BomService', () => {
       ).rejects.toThrow(BadRequestException);
 
       try {
-        await service.create({ parentCode: 'B', childCode: 'A', quantityPerUnit: 1 });
+        await service.create({
+          parentCode: 'B',
+          childCode: 'A',
+          quantityPerUnit: 1,
+        });
       } catch (e: any) {
         expect(e.message).toContain('BoM bị lặp vòng');
         expect(e.message).toContain('B');
@@ -176,7 +188,9 @@ describe('BomService', () => {
       const service = makeService();
       const repo = (service as any).bomRepo;
       repo.findOne.mockResolvedValue(null);
-      await expect(service.update(999, { quantityPerUnit: 5 })).rejects.toThrow(NotFoundException);
+      await expect(service.update(999, { quantityPerUnit: 5 })).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('updates quantityPerUnit when found', async () => {
@@ -207,10 +221,7 @@ describe('BomService', () => {
   describe('getTree', () => {
     it('returns 3-level tree with correct quantities and registered flags', async () => {
       // A (root) → B (qty=2) → C (qty=3)
-      const edges = [
-        makeLine(1, 'A', 'B', 2),
-        makeLine(2, 'B', 'C', 3),
-      ];
+      const edges = [makeLine(1, 'A', 'B', 2), makeLine(2, 'B', 'C', 3)];
       // A and B are registered; C is not
       const service = makeService(edges, ['A', 'B']);
 
@@ -265,14 +276,14 @@ describe('BomService', () => {
   describe('importFromExcel', () => {
     it('returns RowError when Quantity <= 0', async () => {
       const service = makeService([], []);
-      const buf = await buildBomBuffer([
-        ['MAT-A', null, 'COMP-B', null, 0],
-      ]);
+      const buf = await buildBomBuffer([['MAT-A', null, 'COMP-B', null, 0]]);
 
       const result = await service.importFromExcel(buf, 'preview');
 
       expect(result.errors.length).toBeGreaterThan(0);
-      const qtyError = result.errors.find((e) => e.message === 'Số lượng phải lớn hơn 0');
+      const qtyError = result.errors.find(
+        (e) => e.message === 'Số lượng phải lớn hơn 0',
+      );
       expect(qtyError).toBeDefined();
       // First data row is Excel row 2 (row 1 = headers)
       expect(qtyError!.row).toBe(2);
@@ -280,9 +291,7 @@ describe('BomService', () => {
 
     it('returns RowError when Material === Component', async () => {
       const service = makeService([], []);
-      const buf = await buildBomBuffer([
-        ['SAME', null, 'SAME', null, 2],
-      ]);
+      const buf = await buildBomBuffer([['SAME', null, 'SAME', null, 2]]);
 
       const result = await service.importFromExcel(buf, 'preview');
 
@@ -304,7 +313,9 @@ describe('BomService', () => {
       const result = await service.importFromExcel(buf, 'preview');
 
       expect(result.errors).toHaveLength(0);
-      expect(result.warnings.some((w) => w.includes('COMP-UNKNOWN'))).toBe(true);
+      expect(result.warnings.some((w) => w.includes('COMP-UNKNOWN'))).toBe(
+        true,
+      );
       expect(result.warnings.some((w) => w.includes('MAT-A'))).toBe(true);
     });
 
@@ -326,16 +337,18 @@ describe('BomService', () => {
       const existingEdge = makeLine(1, 'A', 'B');
       const service = makeService([existingEdge], []);
 
-      const buf = await buildBomBuffer([
-        ['B', null, 'A', null, 2],
-      ]);
+      const buf = await buildBomBuffer([['B', null, 'A', null, 2]]);
 
       const result = await service.importFromExcel(buf, 'preview');
 
-      expect(result.errors.some((e) => e.message.includes('BoM bị lặp vòng'))).toBe(true);
+      expect(
+        result.errors.some((e) => e.message.includes('BoM bị lặp vòng')),
+      ).toBe(true);
       expect(result.valid).toBe(0);
       // First data row is Excel row 2 (row 1 = headers)
-      const cycleError = result.errors.find((e) => e.message.includes('BoM bị lặp vòng'));
+      const cycleError = result.errors.find((e) =>
+        e.message.includes('BoM bị lặp vòng'),
+      );
       expect(cycleError!.row).toBe(2);
     });
   });

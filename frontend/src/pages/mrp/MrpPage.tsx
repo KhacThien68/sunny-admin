@@ -103,8 +103,8 @@ export default function MrpPage() {
         record.createdByName
           ? record.createdByName
           : record.createdById
-          ? `#${record.createdById}`
-          : '—',
+            ? `#${record.createdById}`
+            : '—',
     },
   ]
 

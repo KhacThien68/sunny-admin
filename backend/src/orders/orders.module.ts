@@ -9,7 +9,12 @@ import { OrdersService } from './orders.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Order, OrderLine, OrderAggregation, AggregationLine]),
+    TypeOrmModule.forFeature([
+      Order,
+      OrderLine,
+      OrderAggregation,
+      AggregationLine,
+    ]),
     ComponentsModule,
     ExcelModule,
   ],

@@ -33,7 +33,10 @@ function makeLine(overrides: Partial<MrpLine> = {}): MrpLine {
   return l;
 }
 
-function makeComponent(code: string, overrides: Partial<ComponentEntity> = {}): ComponentEntity {
+function makeComponent(
+  code: string,
+  overrides: Partial<ComponentEntity> = {},
+): ComponentEntity {
   const c = new ComponentEntity();
   c.id = 1;
   c.code = code;
@@ -67,7 +70,9 @@ function makeRunRepo(runs: MrpRun[] = []) {
       }
 
       // No where filter — latest by createdAt
-      const sorted = [...runs].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      const sorted = [...runs].sort(
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+      );
       return sorted[0] ?? null;
     }),
     find: jest.fn().mockResolvedValue(runs),
@@ -94,7 +99,9 @@ function buildService(overrides: {
   };
 
   const onhandService = {
-    getQuantityMap: jest.fn().mockResolvedValue(overrides.onhandMap ?? new Map()),
+    getQuantityMap: jest
+      .fn()
+      .mockResolvedValue(overrides.onhandMap ?? new Map()),
   };
 
   return new OutputsService(
@@ -112,13 +119,23 @@ describe('OutputsService', () => {
   it('resolveRun with no runs throws NotFoundException', async () => {
     const service = buildService({ runs: [] });
     await expect(service.resolveRun()).rejects.toThrow(NotFoundException);
-    await expect(service.resolveRun()).rejects.toThrow('Chưa có phiên chạy MRP nào');
+    await expect(service.resolveRun()).rejects.toThrow(
+      'Chưa có phiên chạy MRP nào',
+    );
   });
 
   // Test 2: resolveRun — absent runId → picks latest DONE
   it('resolveRun without runId picks latest DONE run', async () => {
-    const doneRun = makeRun({ id: 2, status: MrpRunStatus.DONE, createdAt: new Date('2024-02-01') });
-    const runningRun = makeRun({ id: 1, status: MrpRunStatus.RUNNING, createdAt: new Date('2024-01-01') });
+    const doneRun = makeRun({
+      id: 2,
+      status: MrpRunStatus.DONE,
+      createdAt: new Date('2024-02-01'),
+    });
+    const runningRun = makeRun({
+      id: 1,
+      status: MrpRunStatus.RUNNING,
+      createdAt: new Date('2024-01-01'),
+    });
 
     const service = buildService({ runs: [runningRun, doneRun] });
     const resolved = await service.resolveRun();
@@ -130,18 +147,44 @@ describe('OutputsService', () => {
   it('resolveRun with explicit runId not found throws NotFoundException', async () => {
     const service = buildService({ runs: [] });
     await expect(service.resolveRun(999)).rejects.toThrow(NotFoundException);
-    await expect(service.resolveRun(999)).rejects.toThrow('Không tìm thấy phiên chạy');
+    await expect(service.resolveRun(999)).rejects.toThrow(
+      'Không tìm thấy phiên chạy',
+    );
   });
 
   // Test 4: getPurchaseSummary pivots across rounds and multiple components
   it('getPurchaseSummary: pivots purchase correctly across rounds and components', async () => {
     const run = makeRun({ id: 1, status: MrpRunStatus.DONE });
     const lines = [
-      makeLine({ runId: 1, round: 1, componentCode: 'A001', purchase: 10, recovery: 0 }),
-      makeLine({ runId: 1, round: 2, componentCode: 'A001', purchase: 5, recovery: 0 }),
-      makeLine({ runId: 1, round: 1, componentCode: 'B002', purchase: 20, recovery: 0 }),
+      makeLine({
+        runId: 1,
+        round: 1,
+        componentCode: 'A001',
+        purchase: 10,
+        recovery: 0,
+      }),
+      makeLine({
+        runId: 1,
+        round: 2,
+        componentCode: 'A001',
+        purchase: 5,
+        recovery: 0,
+      }),
+      makeLine({
+        runId: 1,
+        round: 1,
+        componentCode: 'B002',
+        purchase: 20,
+        recovery: 0,
+      }),
       // Zero purchase — should NOT appear
-      makeLine({ runId: 1, round: 1, componentCode: 'C003', purchase: 0, recovery: 0 }),
+      makeLine({
+        runId: 1,
+        round: 1,
+        componentCode: 'C003',
+        purchase: 0,
+        recovery: 0,
+      }),
     ];
     const codeMap = new Map([
       ['A001', makeComponent('A001', { inventoryLevel: 2 })],
@@ -174,9 +217,7 @@ describe('OutputsService', () => {
       // zero recovery — should NOT appear
       makeLine({ runId: 1, round: 1, componentCode: 'B002', recovery: 0 }),
     ];
-    const codeMap = new Map([
-      ['A001', makeComponent('A001')],
-    ]);
+    const codeMap = new Map([['A001', makeComponent('A001')]]);
 
     const service = buildService({ runs: [run], lines, codeMap });
     const result = await service.getRecoverySummary();

@@ -1,4 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { decimalToNumber } from '../common/decimal.transformer';
 
 @Entity('onhand_inventory')

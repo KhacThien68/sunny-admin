@@ -55,8 +55,7 @@ export default function PersonnelPage() {
     const q = search.toLowerCase()
     return data.filter(
       (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.email.toLowerCase().includes(q),
+        p.name.toLowerCase().includes(q) || p.email.toLowerCase().includes(q),
     )
   }, [data, search])
 
@@ -214,7 +213,9 @@ export default function PersonnelPage() {
               importUrl={ENDPOINTS.personnel.import}
               templateFileName="personnel_template.xlsx"
               onDone={() =>
-                void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.personnel })
+                void queryClient.invalidateQueries({
+                  queryKey: QUERY_KEYS.personnel,
+                })
               }
             />
           )}

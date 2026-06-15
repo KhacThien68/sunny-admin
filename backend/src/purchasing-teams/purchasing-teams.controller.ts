@@ -10,12 +10,19 @@ import {
 } from '@nestjs/common';
 import { RequirePermission } from '../common/decorators/require-permission.decorator';
 import { ScreenKey } from '../common/screen-key';
-import { AddMemberDto, AddScopeDto, CreateTeamDto, UpdateTeamDto } from './dto/team.dto';
+import {
+  AddMemberDto,
+  AddScopeDto,
+  CreateTeamDto,
+  UpdateTeamDto,
+} from './dto/team.dto';
 import { PurchasingTeamsService } from './purchasing-teams.service';
 
 @Controller('purchasing-teams')
 export class PurchasingTeamsController {
-  constructor(private readonly purchasingTeamsService: PurchasingTeamsService) {}
+  constructor(
+    private readonly purchasingTeamsService: PurchasingTeamsService,
+  ) {}
 
   // ── Static / named routes BEFORE :id ─────────────────────────────────────────
 
@@ -63,10 +70,7 @@ export class PurchasingTeamsController {
 
   @Post(':id/members')
   @RequirePermission(ScreenKey.PURCHASING_TEAMS, 'update')
-  addMember(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: AddMemberDto,
-  ) {
+  addMember(@Param('id', ParseIntPipe) id: number, @Body() dto: AddMemberDto) {
     return this.purchasingTeamsService.addMember(id, dto);
   }
 
@@ -83,10 +87,7 @@ export class PurchasingTeamsController {
 
   @Post(':id/scopes')
   @RequirePermission(ScreenKey.PURCHASING_TEAMS, 'update')
-  addScope(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: AddScopeDto,
-  ) {
+  addScope(@Param('id', ParseIntPipe) id: number, @Body() dto: AddScopeDto) {
     return this.purchasingTeamsService.addScope(id, dto);
   }
 

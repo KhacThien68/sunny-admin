@@ -19,13 +19,7 @@ import UsersPage from './pages/admin/UsersPage'
 import PermissionsPage from './pages/admin/PermissionsPage'
 
 function NotFound() {
-  return (
-    <Result
-      status="404"
-      title="404"
-      subTitle="Không tìm thấy trang"
-    />
-  )
+  return <Result status="404" title="404" subTitle="Không tìm thấy trang" />
 }
 
 function App() {

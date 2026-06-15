@@ -31,7 +31,8 @@ export class OnhandController {
   async getTemplate(@Res() res: Response) {
     const buffer = await this.onhandService.buildImportTemplate();
     res.set({
-      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'Content-Disposition': 'attachment; filename="onhand-template.xlsx"',
     });
     res.send(buffer);

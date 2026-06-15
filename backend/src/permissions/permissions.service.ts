@@ -17,7 +17,9 @@ export class PermissionsService {
     screen: ScreenKey,
     action: CrudAction,
   ): Promise<boolean> {
-    const row = await this.permRepo.findOne({ where: { userId, screenKey: screen } });
+    const row = await this.permRepo.findOne({
+      where: { userId, screenKey: screen },
+    });
     if (!row) return false;
     const flagMap: Record<CrudAction, keyof Permission> = {
       create: 'canCreate',

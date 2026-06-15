@@ -31,8 +31,12 @@ export async function getMrpRuns(): Promise<MrpRunSummary[]> {
   return res.data
 }
 
-export async function getMrpRunDetail(id: number): Promise<MrpRunDetailResponse> {
-  const res = await apiClient.get<MrpRunDetailResponse>(ENDPOINTS.mrp.runById(id))
+export async function getMrpRunDetail(
+  id: number,
+): Promise<MrpRunDetailResponse> {
+  const res = await apiClient.get<MrpRunDetailResponse>(
+    ENDPOINTS.mrp.runById(id),
+  )
   return res.data
 }
 
@@ -41,11 +45,16 @@ export async function patchMrpLine(
   lineId: number,
   body: { purchase: number },
 ): Promise<MrpLine> {
-  const res = await apiClient.patch<MrpLine>(ENDPOINTS.mrp.lines(runId, lineId), body)
+  const res = await apiClient.patch<MrpLine>(
+    ENDPOINTS.mrp.lines(runId, lineId),
+    body,
+  )
   return res.data
 }
 
 export async function closeRound(runId: number): Promise<MrpRunDetailResponse> {
-  const res = await apiClient.post<MrpRunDetailResponse>(ENDPOINTS.mrp.closeRound(runId))
+  const res = await apiClient.post<MrpRunDetailResponse>(
+    ENDPOINTS.mrp.closeRound(runId),
+  )
   return res.data
 }

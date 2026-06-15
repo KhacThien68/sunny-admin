@@ -87,12 +87,7 @@ export default function LoginPage() {
               <Input.Password placeholder="••••••••" />
             </Form.Item>
             <Form.Item style={{ marginBottom: 0 }}>
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={loading}
-                block
-              >
+              <Button type="primary" htmlType="submit" loading={loading} block>
                 Đăng nhập
               </Button>
             </Form.Item>

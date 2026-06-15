@@ -109,7 +109,9 @@ export class OutputsService {
     const allLines = await this.lineRepo.find({ where: { runId: run.id } });
 
     // Distinct rounds in this run
-    const allRounds = [...new Set(allLines.map((l) => l.round))].sort((a, b) => a - b);
+    const allRounds = [...new Set(allLines.map((l) => l.round))].sort(
+      (a, b) => a - b,
+    );
 
     // Filter to lines with purchase > 0
     const purchaseLines = allLines.filter((l) => l.purchase > 0);
@@ -163,7 +165,9 @@ export class OutputsService {
     const allLines = await this.lineRepo.find({ where: { runId: run.id } });
 
     // Distinct rounds in this run
-    const allRounds = [...new Set(allLines.map((l) => l.round))].sort((a, b) => a - b);
+    const allRounds = [...new Set(allLines.map((l) => l.round))].sort(
+      (a, b) => a - b,
+    );
 
     // Filter to lines with recovery > 0
     const recoveryLines = allLines.filter((l) => l.recovery > 0);
@@ -217,7 +221,9 @@ export class OutputsService {
     const allLines = await this.lineRepo.find({ where: { runId: run.id } });
 
     // Distinct rounds in this run
-    const allRounds = [...new Set(allLines.map((l) => l.round))].sort((a, b) => a - b);
+    const allRounds = [...new Set(allLines.map((l) => l.round))].sort(
+      (a, b) => a - b,
+    );
 
     // All distinct codes in the run
     const codes = [...new Set(allLines.map((l) => l.componentCode))];

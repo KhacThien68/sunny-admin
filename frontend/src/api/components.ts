@@ -11,7 +11,13 @@ import type {
 } from '../types'
 
 export type { MobType } from '../types'
-export type { Component, ComponentsListParams, ComponentsListResponse, CreateComponentBody, UpdateComponentBody }
+export type {
+  Component,
+  ComponentsListParams,
+  ComponentsListResponse,
+  CreateComponentBody,
+  UpdateComponentBody,
+}
 
 /** @deprecated use ImportResult from '../types' */
 export type ImportPreviewResponse = ImportResult
@@ -19,18 +25,25 @@ export type ImportPreviewResponse = ImportResult
 export async function getComponents(
   params: ComponentsListParams,
 ): Promise<ComponentsListResponse> {
-  const res = await apiClient.get<ComponentsListResponse>(ENDPOINTS.components.base, {
-    params,
-  })
+  const res = await apiClient.get<ComponentsListResponse>(
+    ENDPOINTS.components.base,
+    {
+      params,
+    },
+  )
   return res.data
 }
 
 export async function getComponentClassifications(): Promise<string[]> {
-  const res = await apiClient.get<string[]>(ENDPOINTS.components.classifications)
+  const res = await apiClient.get<string[]>(
+    ENDPOINTS.components.classifications,
+  )
   return res.data
 }
 
-export async function createComponent(body: CreateComponentBody): Promise<Component> {
+export async function createComponent(
+  body: CreateComponentBody,
+): Promise<Component> {
   const res = await apiClient.post<Component>(ENDPOINTS.components.base, body)
   return res.data
 }
@@ -39,7 +52,10 @@ export async function updateComponent(
   id: number,
   body: UpdateComponentBody,
 ): Promise<Component> {
-  const res = await apiClient.patch<Component>(ENDPOINTS.components.byId(id), body)
+  const res = await apiClient.patch<Component>(
+    ENDPOINTS.components.byId(id),
+    body,
+  )
   return res.data
 }
 
