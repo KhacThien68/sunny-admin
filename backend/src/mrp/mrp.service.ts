@@ -298,7 +298,22 @@ export class MrpService {
 
     line.purchase = updated.purchase;
     line.manufacturing = updated.manufacturing;
-    return this.lineRepo.save(line);
+    const saved = await this.lineRepo.save(line);
+
+    // Enrich with component display fields so the client can update its cache
+    // without losing description/uom/mob/moq (these are joined in getRun).
+    return {
+      ...saved,
+      description: comp.description,
+      uom: comp.uom,
+      mob: comp.mob,
+      moq: comp.moq,
+    } as MrpLine & {
+      description: string | null;
+      uom: string | null;
+      mob: string;
+      moq: number;
+    };
   }
 
   // ── closeRound ─────────────────────────────────────────────────────────────

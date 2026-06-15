@@ -12,6 +12,8 @@ import OnhandPage from './pages/onhand/OnhandPage'
 import TeamsListPage from './pages/purchasing/TeamsListPage'
 import TeamDetailPage from './pages/purchasing/TeamDetailPage'
 import OrdersPage from './pages/orders/OrdersPage'
+import MrpPage from './pages/mrp/MrpPage'
+import MrpRunDetailPage from './pages/mrp/MrpRunDetailPage'
 
 function NotFound() {
   return (
@@ -96,7 +98,15 @@ function App() {
             path="/mrp"
             element={
               <ScreenGuard screenKey="MRP">
-                <PlaceholderPage title="Chạy MRP" />
+                <MrpPage />
+              </ScreenGuard>
+            }
+          />
+          <Route
+            path="/mrp/:id"
+            element={
+              <ScreenGuard screenKey="MRP">
+                <MrpRunDetailPage />
               </ScreenGuard>
             }
           />
