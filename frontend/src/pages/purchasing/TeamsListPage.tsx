@@ -22,23 +22,12 @@ import {
   deletePurchasingTeam,
   getUnassignedComponents,
 } from '../../api/purchasingTeams'
-import type { PurchasingTeamSummary } from '../../api/purchasingTeams'
-import type { Component, MobType } from '../../api/components'
+import type { PurchasingTeamSummary, Component, MobType } from '../../types'
+import { QUERY_KEYS } from '../../constants/queryKeys'
+import { MOB_LABELS, MOB_COLORS } from '../../constants/labels'
 import { getErrorMessage } from '../../utils/errorMessage'
 
 const { Title } = Typography
-
-const MOB_LABELS: Record<MobType, string> = {
-  KHONG: 'Sản xuất',
-  CO_THE: 'Có thể mua',
-  BAT_BUOC: 'Bắt buộc mua',
-}
-
-const MOB_COLORS: Record<MobType, string | undefined> = {
-  KHONG: undefined,
-  CO_THE: 'blue',
-  BAT_BUOC: 'red',
-}
 
 interface TeamFormValues {
   name: string
@@ -59,12 +48,12 @@ export default function TeamsListPage() {
   const [alertClosed, setAlertClosed] = useState(false)
 
   const { data: teams = [], isLoading } = useQuery({
-    queryKey: ['purchasing-teams'],
+    queryKey: QUERY_KEYS.purchasingTeams,
     queryFn: getPurchasingTeams,
   })
 
   const { data: unassigned = [] } = useQuery({
-    queryKey: ['unassigned-components'],
+    queryKey: QUERY_KEYS.unassignedComponents,
     queryFn: getUnassignedComponents,
   })
 
@@ -73,7 +62,7 @@ export default function TeamsListPage() {
     onSuccess: () => {
       void message.success('Đã tạo team')
       setModalOpen(false)
-      void queryClient.invalidateQueries({ queryKey: ['purchasing-teams'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeams })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi tạo team'))
@@ -86,7 +75,7 @@ export default function TeamsListPage() {
     onSuccess: () => {
       void message.success('Đã lưu')
       setModalOpen(false)
-      void queryClient.invalidateQueries({ queryKey: ['purchasing-teams'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeams })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi cập nhật team'))
@@ -97,8 +86,8 @@ export default function TeamsListPage() {
     mutationFn: deletePurchasingTeam,
     onSuccess: () => {
       void message.success('Đã xóa team')
-      void queryClient.invalidateQueries({ queryKey: ['purchasing-teams'] })
-      void queryClient.invalidateQueries({ queryKey: ['unassigned-components'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeams })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.unassignedComponents })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi xóa team'))

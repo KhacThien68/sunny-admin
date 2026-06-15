@@ -29,8 +29,10 @@ import {
   getBomTree,
   getUnregisteredBomCodes,
 } from '../../api/bom'
-import type { BomRow, BomTreeNode } from '../../api/bom'
+import type { BomRow, BomTreeNode } from '../../types'
 import { getComponents } from '../../api/components'
+import { QUERY_KEYS } from '../../constants/queryKeys'
+import { ENDPOINTS } from '../../constants/endpoints'
 import { getErrorMessage } from '../../utils/errorMessage'
 
 const { Title } = Typography
@@ -71,13 +73,13 @@ function AddBomModal({ open, onClose, onSuccess, canCreateComponent }: AddBomMod
   const [childSearch, setChildSearch] = useState('')
 
   const { data: parentOptions } = useQuery({
-    queryKey: ['components-search', parentSearch],
+    queryKey: QUERY_KEYS.componentsSearch(parentSearch),
     queryFn: () => getComponents({ search: parentSearch, pageSize: 30 }),
     enabled: open,
   })
 
   const { data: childOptions } = useQuery({
-    queryKey: ['components-search', childSearch],
+    queryKey: QUERY_KEYS.componentsSearch(childSearch),
     queryFn: () => getComponents({ search: childSearch, pageSize: 30 }),
     enabled: open,
   })
@@ -251,12 +253,12 @@ function BomListTab() {
   const [alertClosed, setAlertClosed] = useState(false)
 
   const { data: bomData = [], isLoading } = useQuery({
-    queryKey: ['bom', parentFilter],
+    queryKey: QUERY_KEYS.bom(parentFilter),
     queryFn: () => getBomList(parentFilter),
   })
 
   const { data: unregistered = [] } = useQuery({
-    queryKey: ['bom-unregistered'],
+    queryKey: QUERY_KEYS.bomUnregistered,
     queryFn: getUnregisteredBomCodes,
   })
 
@@ -264,8 +266,8 @@ function BomListTab() {
     mutationFn: deleteBomRow,
     onSuccess: () => {
       void message.success('Đã xóa dòng BoM')
-      void queryClient.invalidateQueries({ queryKey: ['bom'] })
-      void queryClient.invalidateQueries({ queryKey: ['bom-unregistered'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bomBase })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bomUnregistered })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi xóa'))
@@ -283,14 +285,14 @@ function BomListTab() {
 
   function handleAddSuccess() {
     setAddOpen(false)
-    void queryClient.invalidateQueries({ queryKey: ['bom'] })
-    void queryClient.invalidateQueries({ queryKey: ['bom-unregistered'] })
-    void queryClient.invalidateQueries({ queryKey: ['bom-tree'] })
+    void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bomBase })
+    void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bomUnregistered })
+    void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bomTreeBase })
   }
 
   function handleEditSuccess() {
     setEditRow(null)
-    void queryClient.invalidateQueries({ queryKey: ['bom'] })
+    void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bomBase })
   }
 
   const columns = [
@@ -417,13 +419,13 @@ function BomListTab() {
         <Space wrap>
           {canCreate && (
             <ImportExcelButton
-              templateUrl="/bom/template"
-              importUrl="/bom/import"
+              templateUrl={ENDPOINTS.bom.template}
+              importUrl={ENDPOINTS.bom.import}
               templateFileName="bom_template.xlsx"
               onDone={() => {
-                void queryClient.invalidateQueries({ queryKey: ['bom'] })
-                void queryClient.invalidateQueries({ queryKey: ['bom-unregistered'] })
-                void queryClient.invalidateQueries({ queryKey: ['bom-tree'] })
+                void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bomBase })
+                void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bomUnregistered })
+                void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bomTreeBase })
               }}
             />
           )}
@@ -472,12 +474,12 @@ function BomTreeTab() {
   const [searchVal, setSearchVal] = useState('')
 
   const { data: componentsData } = useQuery({
-    queryKey: ['components-search', searchVal],
+    queryKey: QUERY_KEYS.componentsSearch(searchVal),
     queryFn: () => getComponents({ search: searchVal, pageSize: 50 }),
   })
 
   const { data: treeData, isLoading } = useQuery({
-    queryKey: ['bom-tree', selectedCode],
+    queryKey: QUERY_KEYS.bomTree(selectedCode),
     queryFn: () => getBomTree(selectedCode),
     enabled: !!selectedCode,
   })

@@ -3,7 +3,8 @@ import { Typography, Space, Table, Empty, Alert } from 'antd'
 import { useQuery } from '@tanstack/react-query'
 import type { ColumnsType } from 'antd/es/table'
 import { getOutputRuns, getPsi } from '../../api/outputs'
-import type { PsiItem } from '../../api/outputs'
+import type { PsiItem } from '../../types'
+import { QUERY_KEYS } from '../../constants/queryKeys'
 import RunSelector from './RunSelector'
 
 const { Title } = Typography
@@ -78,7 +79,7 @@ export default function PsiPage() {
 
   // Load runs list to initialize selector
   const { data: runs = [] } = useQuery({
-    queryKey: ['output-runs'],
+    queryKey: QUERY_KEYS.outputRuns,
     queryFn: getOutputRuns,
   })
 
@@ -99,7 +100,7 @@ export default function PsiPage() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ['output-psi', selectedRunId],
+    queryKey: QUERY_KEYS.outputPsi(selectedRunId),
     queryFn: () => getPsi(selectedRunId),
     retry: false,
     enabled: runs.length > 0 || selectedRunId !== undefined,

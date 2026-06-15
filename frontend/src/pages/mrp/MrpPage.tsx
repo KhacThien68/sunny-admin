@@ -16,7 +16,8 @@ import { useNavigate } from 'react-router-dom'
 import dayjs from 'dayjs'
 import { usePermission } from '../../hooks/usePermission'
 import { getMrpRuns, createMrpRun } from '../../api/mrp'
-import type { MrpRunSummary } from '../../api/mrp'
+import type { MrpRunSummary } from '../../types'
+import { QUERY_KEYS } from '../../constants/queryKeys'
 import { getErrorMessage } from '../../utils/errorMessage'
 
 const { Title } = Typography
@@ -32,14 +33,14 @@ export default function MrpPage() {
   const [pendingRunId, setPendingRunId] = useState<number | null>(null)
 
   const { data: runs = [], isLoading } = useQuery({
-    queryKey: ['mrp-runs'],
+    queryKey: QUERY_KEYS.mrpRuns,
     queryFn: getMrpRuns,
   })
 
   const createMutation = useMutation({
     mutationFn: createMrpRun,
     onSuccess: (data) => {
-      void queryClient.invalidateQueries({ queryKey: ['mrp-runs'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.mrpRuns })
       if (data.warnings && data.warnings.length > 0) {
         setWarnings(data.warnings)
         setPendingRunId(data.run.id)

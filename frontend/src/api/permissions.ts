@@ -1,25 +1,16 @@
 import { apiClient } from './client'
+import { ENDPOINTS } from '../constants/endpoints'
+import type { Screen, PermissionEntry } from '../types'
 
-export interface Screen {
-  key: string
-  label: string
-}
-
-export interface PermissionEntry {
-  screenKey: string
-  canCreate: boolean
-  canRead: boolean
-  canUpdate: boolean
-  canDelete: boolean
-}
+export type { Screen, PermissionEntry }
 
 export async function getScreens(): Promise<Screen[]> {
-  const res = await apiClient.get<Screen[]>('/permissions/screens')
+  const res = await apiClient.get<Screen[]>(ENDPOINTS.permissions.screens)
   return res.data
 }
 
 export async function getUserPermissions(userId: number): Promise<PermissionEntry[]> {
-  const res = await apiClient.get<PermissionEntry[]>(`/permissions/${userId}`)
+  const res = await apiClient.get<PermissionEntry[]>(ENDPOINTS.permissions.byUser(userId))
   return res.data
 }
 
@@ -27,6 +18,6 @@ export async function putUserPermissions(
   userId: number,
   entries: PermissionEntry[],
 ): Promise<PermissionEntry[]> {
-  const res = await apiClient.put<PermissionEntry[]>(`/permissions/${userId}`, entries)
+  const res = await apiClient.put<PermissionEntry[]>(ENDPOINTS.permissions.byUser(userId), entries)
   return res.data
 }

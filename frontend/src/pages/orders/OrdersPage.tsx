@@ -34,7 +34,9 @@ import {
   aggregateOrders,
   getLatestAggregation,
 } from '../../api/orders'
-import type { OrderSummary, OrderDetail, AggregationResult } from '../../api/orders'
+import type { OrderSummary, OrderDetail, AggregationResult } from '../../types'
+import { QUERY_KEYS } from '../../constants/queryKeys'
+import { ENDPOINTS } from '../../constants/endpoints'
 import { getErrorMessage } from '../../utils/errorMessage'
 import { apiClient } from '../../api/client'
 
@@ -59,7 +61,7 @@ interface OrderFormValues {
 
 async function searchComponentOptions(search: string): Promise<ComponentSearchItem[]> {
   if (!search || search.length < 1) return []
-  const res = await apiClient.get<{ items: ComponentSearchItem[] }>('/components', {
+  const res = await apiClient.get<{ items: ComponentSearchItem[] }>(ENDPOINTS.components.base, {
     params: { search, pageSize: 20 },
   })
   return res.data.items
@@ -88,12 +90,12 @@ export default function OrdersPage() {
 
   // Queries
   const { data: orders = [], isLoading } = useQuery({
-    queryKey: ['orders'],
+    queryKey: QUERY_KEYS.orders,
     queryFn: getOrders,
   })
 
   const { data: latestAggregation, isLoading: aggLoading } = useQuery({
-    queryKey: ['latest-aggregation'],
+    queryKey: QUERY_KEYS.latestAggregation,
     queryFn: getLatestAggregation,
     retry: false,
   })
@@ -104,7 +106,7 @@ export default function OrdersPage() {
     onSuccess: () => {
       void message.success('Đã tạo đơn hàng')
       setModalOpen(false)
-      void queryClient.invalidateQueries({ queryKey: ['orders'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.orders })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi tạo đơn hàng'))
@@ -117,7 +119,7 @@ export default function OrdersPage() {
     onSuccess: () => {
       void message.success('Đã cập nhật đơn hàng')
       setModalOpen(false)
-      void queryClient.invalidateQueries({ queryKey: ['orders'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.orders })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi cập nhật đơn hàng'))
@@ -128,7 +130,7 @@ export default function OrdersPage() {
     mutationFn: deleteOrder,
     onSuccess: () => {
       void message.success('Đã xóa đơn hàng')
-      void queryClient.invalidateQueries({ queryKey: ['orders'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.orders })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi xóa đơn hàng'))
@@ -141,8 +143,8 @@ export default function OrdersPage() {
       void message.success('Tổng hợp thành công')
       setAggResult(result)
       setAggResultOpen(true)
-      void queryClient.invalidateQueries({ queryKey: ['orders'] })
-      void queryClient.invalidateQueries({ queryKey: ['latest-aggregation'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.orders })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.latestAggregation })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi tổng hợp'))
@@ -375,12 +377,12 @@ export default function OrdersPage() {
         <Space wrap>
           {canCreate && (
             <ImportExcelButton
-              templateUrl="/orders/template"
-              importUrl="/orders/import"
+              templateUrl={ENDPOINTS.orders.template}
+              importUrl={ENDPOINTS.orders.import}
               templateFileName="orders_template.xlsx"
               onDone={() => {
-                void queryClient.invalidateQueries({ queryKey: ['orders'] })
-                void queryClient.invalidateQueries({ queryKey: ['latest-aggregation'] })
+                void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.orders })
+                void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.latestAggregation })
               }}
             />
           )}

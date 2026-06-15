@@ -19,7 +19,9 @@ import {
   updatePersonnel,
   deletePersonnel,
 } from '../../api/personnel'
-import type { Personnel } from '../../api/personnel'
+import type { Personnel } from '../../types'
+import { QUERY_KEYS } from '../../constants/queryKeys'
+import { ENDPOINTS } from '../../constants/endpoints'
 import { getErrorMessage } from '../../utils/errorMessage'
 
 const { Title } = Typography
@@ -43,7 +45,7 @@ export default function PersonnelPage() {
   const [form] = Form.useForm<FormValues>()
 
   const { data = [], isLoading } = useQuery({
-    queryKey: ['personnel'],
+    queryKey: QUERY_KEYS.personnel,
     queryFn: getPersonnel,
   })
 
@@ -63,7 +65,7 @@ export default function PersonnelPage() {
     onSuccess: () => {
       void message.success('Đã lưu')
       setModalOpen(false)
-      void queryClient.invalidateQueries({ queryKey: ['personnel'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.personnel })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi tạo nhân sự'))
@@ -76,7 +78,7 @@ export default function PersonnelPage() {
     onSuccess: () => {
       void message.success('Đã lưu')
       setModalOpen(false)
-      void queryClient.invalidateQueries({ queryKey: ['personnel'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.personnel })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi cập nhật nhân sự'))
@@ -87,7 +89,7 @@ export default function PersonnelPage() {
     mutationFn: deletePersonnel,
     onSuccess: () => {
       void message.success('Đã xóa')
-      void queryClient.invalidateQueries({ queryKey: ['personnel'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.personnel })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi xóa nhân sự'))
@@ -208,11 +210,11 @@ export default function PersonnelPage() {
           />
           {canCreate && (
             <ImportExcelButton
-              templateUrl="/personnel/template"
-              importUrl="/personnel/import"
+              templateUrl={ENDPOINTS.personnel.template}
+              importUrl={ENDPOINTS.personnel.import}
               templateFileName="personnel_template.xlsx"
               onDone={() =>
-                void queryClient.invalidateQueries({ queryKey: ['personnel'] })
+                void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.personnel })
               }
             />
           )}

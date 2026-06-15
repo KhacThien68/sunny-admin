@@ -1,5 +1,5 @@
 import { useAuth } from '../stores/auth'
-import type { PermissionFlags } from '../stores/auth'
+import type { PermissionFlags } from '../types'
 
 const ALL_TRUE: PermissionFlags = {
   canCreate: true,

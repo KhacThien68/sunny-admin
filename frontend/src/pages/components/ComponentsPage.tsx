@@ -26,22 +26,13 @@ import {
   updateComponent,
   deleteComponent,
 } from '../../api/components'
-import type { Component, MobType } from '../../api/components'
+import type { Component, MobType } from '../../types'
+import { QUERY_KEYS } from '../../constants/queryKeys'
+import { ENDPOINTS } from '../../constants/endpoints'
+import { MOB_LABELS, MOB_COLORS } from '../../constants/labels'
 import { getErrorMessage } from '../../utils/errorMessage'
 
 const { Title } = Typography
-
-const MOB_LABELS: Record<MobType, string> = {
-  KHONG: 'Sản xuất',
-  CO_THE: 'Có thể mua',
-  BAT_BUOC: 'Bắt buộc mua',
-}
-
-const MOB_COLORS: Record<MobType, string | undefined> = {
-  KHONG: undefined,
-  CO_THE: 'blue',
-  BAT_BUOC: 'red',
-}
 
 interface FormValues {
   code: string
@@ -95,7 +86,7 @@ export default function ComponentsPage() {
 
   // Queries
   const { data, isLoading } = useQuery({
-    queryKey: ['components', { search, classification, page, pageSize }],
+    queryKey: QUERY_KEYS.components({ search, classification, page, pageSize }),
     queryFn: () =>
       getComponents({
         search: search || undefined,
@@ -106,7 +97,7 @@ export default function ComponentsPage() {
   })
 
   const { data: classifications = [] } = useQuery({
-    queryKey: ['components', 'classifications'],
+    queryKey: QUERY_KEYS.classifications,
     queryFn: getComponentClassifications,
   })
 
@@ -117,7 +108,7 @@ export default function ComponentsPage() {
       void message.success('Đã lưu')
       setModalOpen(false)
       setPrefillCode(undefined)
-      void queryClient.invalidateQueries({ queryKey: ['components'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.components() })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi tạo mã'))
@@ -130,7 +121,7 @@ export default function ComponentsPage() {
     onSuccess: () => {
       void message.success('Đã lưu')
       setModalOpen(false)
-      void queryClient.invalidateQueries({ queryKey: ['components'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.components() })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi cập nhật mã'))
@@ -141,7 +132,7 @@ export default function ComponentsPage() {
     mutationFn: deleteComponent,
     onSuccess: () => {
       void message.success('Đã xóa')
-      void queryClient.invalidateQueries({ queryKey: ['components'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.components() })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi xóa mã'))
@@ -308,11 +299,11 @@ export default function ComponentsPage() {
           />
           {canCreate && (
             <ImportExcelButton
-              templateUrl="/components/template"
-              importUrl="/components/import"
+              templateUrl={ENDPOINTS.components.template}
+              importUrl={ENDPOINTS.components.import}
               templateFileName="component_template.xlsx"
               onDone={() =>
-                void queryClient.invalidateQueries({ queryKey: ['components'] })
+                void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.components() })
               }
             />
           )}

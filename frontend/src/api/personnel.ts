@@ -1,39 +1,16 @@
 import { apiClient } from './client'
+import { ENDPOINTS } from '../constants/endpoints'
+import type { Personnel, CreatePersonnelBody, UpdatePersonnelBody } from '../types'
 
-export interface Personnel {
-  id: number
-  name: string
-  position: string | null
-  team: string | null
-  email: string
-  phone: string | null
-  isAdmin: boolean
-  isActive: boolean
-}
-
-export interface CreatePersonnelBody {
-  name: string
-  email: string
-  position?: string
-  team?: string
-  phone?: string
-}
-
-export interface UpdatePersonnelBody {
-  name?: string
-  email?: string
-  position?: string
-  team?: string
-  phone?: string
-}
+export type { Personnel, CreatePersonnelBody, UpdatePersonnelBody }
 
 export async function getPersonnel(): Promise<Personnel[]> {
-  const res = await apiClient.get<Personnel[]>('/personnel')
+  const res = await apiClient.get<Personnel[]>(ENDPOINTS.personnel.base)
   return res.data
 }
 
 export async function createPersonnel(body: CreatePersonnelBody): Promise<Personnel> {
-  const res = await apiClient.post<Personnel>('/personnel', body)
+  const res = await apiClient.post<Personnel>(ENDPOINTS.personnel.base, body)
   return res.data
 }
 
@@ -41,10 +18,10 @@ export async function updatePersonnel(
   id: number,
   body: UpdatePersonnelBody,
 ): Promise<Personnel> {
-  const res = await apiClient.patch<Personnel>(`/personnel/${id}`, body)
+  const res = await apiClient.patch<Personnel>(ENDPOINTS.personnel.byId(id), body)
   return res.data
 }
 
 export async function deletePersonnel(id: number): Promise<void> {
-  await apiClient.delete(`/personnel/${id}`)
+  await apiClient.delete(ENDPOINTS.personnel.byId(id))
 }

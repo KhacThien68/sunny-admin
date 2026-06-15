@@ -21,7 +21,8 @@ import {
   updateUser,
   deleteUser,
 } from '../../api/users'
-import type { User } from '../../api/users'
+import type { User } from '../../types'
+import { QUERY_KEYS } from '../../constants/queryKeys'
 import { getErrorMessage } from '../../utils/errorMessage'
 
 const { Title } = Typography
@@ -49,7 +50,7 @@ export default function UsersPage() {
   const [form] = Form.useForm<FormValues>()
 
   const { data = [], isLoading } = useQuery({
-    queryKey: ['users'],
+    queryKey: QUERY_KEYS.users,
     queryFn: getUsers,
   })
 
@@ -69,7 +70,7 @@ export default function UsersPage() {
     onSuccess: () => {
       void message.success('Đã tạo người dùng')
       setModalOpen(false)
-      void queryClient.invalidateQueries({ queryKey: ['users'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.users })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi tạo người dùng'))
@@ -82,7 +83,7 @@ export default function UsersPage() {
     onSuccess: () => {
       void message.success('Đã lưu')
       setModalOpen(false)
-      void queryClient.invalidateQueries({ queryKey: ['users'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.users })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi cập nhật người dùng'))
@@ -93,7 +94,7 @@ export default function UsersPage() {
     mutationFn: deleteUser,
     onSuccess: () => {
       void message.success('Đã xóa người dùng')
-      void queryClient.invalidateQueries({ queryKey: ['users'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.users })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi xóa người dùng'))

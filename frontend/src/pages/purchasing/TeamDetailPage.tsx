@@ -28,9 +28,10 @@ import {
   addTeamScope,
   removeTeamScope,
 } from '../../api/purchasingTeams'
-import type { TeamMember, TeamScope } from '../../api/purchasingTeams'
+import type { TeamMember, TeamScope } from '../../types'
 import { getPersonnel } from '../../api/personnel'
 import { getComponentClassifications, getComponents } from '../../api/components'
+import { QUERY_KEYS } from '../../constants/queryKeys'
 import { getErrorMessage } from '../../utils/errorMessage'
 
 const { Title, Text } = Typography
@@ -62,7 +63,7 @@ export default function TeamDetailPage() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['purchasing-team', teamId],
+    queryKey: QUERY_KEYS.purchasingTeam(teamId),
     queryFn: () => getPurchasingTeam(teamId),
     enabled: !isNaN(teamId),
     retry: (failureCount, error) => {
@@ -74,18 +75,18 @@ export default function TeamDetailPage() {
   })
 
   const { data: personnel = [] } = useQuery({
-    queryKey: ['personnel'],
+    queryKey: QUERY_KEYS.personnel,
     queryFn: getPersonnel,
   })
 
   const { data: classifications = [] } = useQuery({
-    queryKey: ['component-classifications'],
+    queryKey: QUERY_KEYS.componentClassifications,
     queryFn: getComponentClassifications,
     enabled: scopeModalOpen && scopeMode === 'classification',
   })
 
   const { data: componentsData } = useQuery({
-    queryKey: ['components-search', componentSearch],
+    queryKey: QUERY_KEYS.componentsSearch(componentSearch),
     queryFn: () => getComponents({ search: componentSearch, pageSize: 50 }),
     enabled: scopeModalOpen && scopeMode === 'component',
   })
@@ -97,8 +98,8 @@ export default function TeamDetailPage() {
     onSuccess: () => {
       void message.success('Đã thêm nhân sự')
       setSelectedUserId(undefined)
-      void queryClient.invalidateQueries({ queryKey: ['purchasing-team', teamId] })
-      void queryClient.invalidateQueries({ queryKey: ['purchasing-teams'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeam(teamId) })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeams })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi thêm nhân sự'))
@@ -109,8 +110,8 @@ export default function TeamDetailPage() {
     mutationFn: (memberId: number) => removeTeamMember(teamId, memberId),
     onSuccess: () => {
       void message.success('Đã xóa thành viên')
-      void queryClient.invalidateQueries({ queryKey: ['purchasing-team', teamId] })
-      void queryClient.invalidateQueries({ queryKey: ['purchasing-teams'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeam(teamId) })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeams })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi xóa thành viên'))
@@ -123,9 +124,9 @@ export default function TeamDetailPage() {
     onSuccess: () => {
       void message.success('Đã thêm phạm vi')
       closeScopeModal()
-      void queryClient.invalidateQueries({ queryKey: ['purchasing-team', teamId] })
-      void queryClient.invalidateQueries({ queryKey: ['purchasing-teams'] })
-      void queryClient.invalidateQueries({ queryKey: ['unassigned-components'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeam(teamId) })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeams })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.unassignedComponents })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi thêm phạm vi'))
@@ -136,9 +137,9 @@ export default function TeamDetailPage() {
     mutationFn: (scopeId: number) => removeTeamScope(teamId, scopeId),
     onSuccess: () => {
       void message.success('Đã xóa phạm vi')
-      void queryClient.invalidateQueries({ queryKey: ['purchasing-team', teamId] })
-      void queryClient.invalidateQueries({ queryKey: ['purchasing-teams'] })
-      void queryClient.invalidateQueries({ queryKey: ['unassigned-components'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeam(teamId) })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.purchasingTeams })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.unassignedComponents })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi xóa phạm vi'))

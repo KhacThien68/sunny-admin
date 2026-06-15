@@ -1,86 +1,38 @@
 import { apiClient } from './client'
+import { ENDPOINTS } from '../constants/endpoints'
+import type {
+  MrpRunStatus,
+  MrpLine,
+  MrpRound,
+  MrpRunSummary,
+  MrpRunDetail,
+  MrpRunDetailResponse,
+  CreateMrpRunResponse,
+} from '../types'
 
-// ── Shared types ─────────────────────────────────────────────────────────────
-
-export type MobType = 'KHONG' | 'CO_THE' | 'BAT_BUOC'
-export type MrpRunStatus = 'RUNNING' | 'DONE'
-
-// ── MRP Line (full) ──────────────────────────────────────────────────────────
-
-export interface MrpLine {
-  id: number
-  componentCode: string
-  orderQty: number
-  onhand: number
-  levels: number
-  demand: number
-  purchase: number
-  manufacturing: number
-  recovery: number
-  locked: boolean
-  description: string | null
-  uom: string | null
-  mob: MobType
-  moq: number
+export type { MobType } from '../types'
+export type {
+  MrpRunStatus,
+  MrpLine,
+  MrpRound,
+  MrpRunSummary,
+  MrpRunDetail,
+  MrpRunDetailResponse,
+  CreateMrpRunResponse,
 }
-
-// ── MRP Round ────────────────────────────────────────────────────────────────
-
-export interface MrpRound {
-  round: number
-  locked: boolean
-  lines: MrpLine[]
-}
-
-// ── MRP Run (summary — list) ─────────────────────────────────────────────────
-
-export interface MrpRunSummary {
-  id: number
-  status: MrpRunStatus
-  currentRound: number
-  createdAt: string
-  createdByName?: string | null
-  createdById?: number | null
-}
-
-// ── MRP Run (full — detail) ──────────────────────────────────────────────────
-
-export interface MrpRunDetail {
-  id: number
-  status: MrpRunStatus
-  currentRound: number
-  aggregationId: number
-  createdById: number
-  createdAt: string
-}
-
-export interface MrpRunDetailResponse {
-  run: MrpRunDetail
-  rounds: MrpRound[]
-}
-
-// ── Create Run response ──────────────────────────────────────────────────────
-
-export interface CreateMrpRunResponse {
-  run: MrpRunSummary & { aggregationId: number; createdById: number }
-  lines: MrpLine[]
-  warnings: string[]
-}
-
-// ── API functions ────────────────────────────────────────────────────────────
 
 export async function createMrpRun(): Promise<CreateMrpRunResponse> {
-  const res = await apiClient.post<CreateMrpRunResponse>('/mrp/runs')
+  const res = await apiClient.post<CreateMrpRunResponse>(ENDPOINTS.mrp.runs)
   return res.data
 }
 
 export async function getMrpRuns(): Promise<MrpRunSummary[]> {
-  const res = await apiClient.get<MrpRunSummary[]>('/mrp/runs')
+  const res = await apiClient.get<MrpRunSummary[]>(ENDPOINTS.mrp.runs)
   return res.data
 }
 
 export async function getMrpRunDetail(id: number): Promise<MrpRunDetailResponse> {
-  const res = await apiClient.get<MrpRunDetailResponse>(`/mrp/runs/${id}`)
+  const res = await apiClient.get<MrpRunDetailResponse>(ENDPOINTS.mrp.runById(id))
   return res.data
 }
 
@@ -89,11 +41,11 @@ export async function patchMrpLine(
   lineId: number,
   body: { purchase: number },
 ): Promise<MrpLine> {
-  const res = await apiClient.patch<MrpLine>(`/mrp/runs/${runId}/lines/${lineId}`, body)
+  const res = await apiClient.patch<MrpLine>(ENDPOINTS.mrp.lines(runId, lineId), body)
   return res.data
 }
 
 export async function closeRound(runId: number): Promise<MrpRunDetailResponse> {
-  const res = await apiClient.post<MrpRunDetailResponse>(`/mrp/runs/${runId}/close-round`)
+  const res = await apiClient.post<MrpRunDetailResponse>(ENDPOINTS.mrp.closeRound(runId))
   return res.data
 }

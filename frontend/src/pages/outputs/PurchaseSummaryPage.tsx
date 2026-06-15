@@ -3,7 +3,8 @@ import { Typography, Space, Card, Table, Empty } from 'antd'
 import { useQuery } from '@tanstack/react-query'
 import type { ColumnsType } from 'antd/es/table'
 import { getOutputRuns, getPurchaseSummary, getRecoverySummary } from '../../api/outputs'
-import type { PurchaseSummaryItem, OutputRunInfo } from '../../api/outputs'
+import type { PurchaseSummaryItem, OutputRunInfo } from '../../types'
+import { QUERY_KEYS } from '../../constants/queryKeys'
 import RunSelector from './RunSelector'
 
 const { Title } = Typography
@@ -104,7 +105,7 @@ export default function PurchaseSummaryPage() {
 
   // Load runs list to initialize selector
   const { data: runs = [] } = useQuery({
-    queryKey: ['output-runs'],
+    queryKey: QUERY_KEYS.outputRuns,
     queryFn: getOutputRuns,
   })
 
@@ -125,7 +126,7 @@ export default function PurchaseSummaryPage() {
     isLoading: purchaseLoading,
     error: purchaseError,
   } = useQuery({
-    queryKey: ['output-purchase', selectedRunId],
+    queryKey: QUERY_KEYS.outputPurchase(selectedRunId),
     queryFn: () => getPurchaseSummary(selectedRunId),
     retry: false,
     enabled: runs.length > 0 || selectedRunId !== undefined,
@@ -136,7 +137,7 @@ export default function PurchaseSummaryPage() {
     isLoading: recoveryLoading,
     error: recoveryError,
   } = useQuery({
-    queryKey: ['output-recovery', selectedRunId],
+    queryKey: QUERY_KEYS.outputRecovery(selectedRunId),
     queryFn: () => getRecoverySummary(selectedRunId),
     retry: false,
     enabled: runs.length > 0 || selectedRunId !== undefined,

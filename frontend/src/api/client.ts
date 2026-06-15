@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useAuth } from '../stores/auth'
+import { ENDPOINTS } from '../constants/endpoints'
 
 export const apiClient = axios.create({
   baseURL: '/api',
@@ -40,7 +41,7 @@ apiClient.interceptors.response.use(
       // Single-flight: if refresh is already in-flight, wait for it
       if (!refreshPromise) {
         refreshPromise = axios
-          .post('/api/auth/refresh', {}, { withCredentials: true })
+          .post(`/api${ENDPOINTS.auth.refresh}`, {}, { withCredentials: true })
           .then((res) => {
             const { accessToken, user } = res.data as {
               accessToken: string

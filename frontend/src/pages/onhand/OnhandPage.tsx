@@ -23,7 +23,9 @@ import {
   deleteOnhand,
   searchComponents,
 } from '../../api/onhand'
-import type { OnhandItem } from '../../api/onhand'
+import type { OnhandItem } from '../../types'
+import { QUERY_KEYS } from '../../constants/queryKeys'
+import { ENDPOINTS } from '../../constants/endpoints'
 import { getErrorMessage } from '../../utils/errorMessage'
 
 const { Title } = Typography
@@ -53,12 +55,12 @@ export default function OnhandPage() {
   const [addForm] = Form.useForm<AddRowFormValues>()
 
   const { data = [], isLoading } = useQuery({
-    queryKey: ['onhand'],
+    queryKey: QUERY_KEYS.onhand,
     queryFn: getOnhand,
   })
 
   const { data: componentSearchData } = useQuery({
-    queryKey: ['components-search', codeSearch],
+    queryKey: QUERY_KEYS.componentsSearch(codeSearch),
     queryFn: () => searchComponents(codeSearch, 30),
     enabled: addOpen,
   })
@@ -69,7 +71,7 @@ export default function OnhandPage() {
     onSuccess: () => {
       void message.success('Đã lưu')
       setEditing(null)
-      void queryClient.invalidateQueries({ queryKey: ['onhand'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.onhand })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi cập nhật tồn kho'))
@@ -80,7 +82,7 @@ export default function OnhandPage() {
     mutationFn: deleteOnhand,
     onSuccess: () => {
       void message.success('Đã xóa')
-      void queryClient.invalidateQueries({ queryKey: ['onhand'] })
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.onhand })
     },
     onError: (err) => {
       void message.error(getErrorMessage(err, 'Lỗi khi xóa'))
@@ -115,7 +117,7 @@ export default function OnhandPage() {
             onSuccess: () => {
               setAddOpen(false)
               addForm.resetFields()
-              void queryClient.invalidateQueries({ queryKey: ['onhand'] })
+              void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.onhand })
             },
           },
         )
@@ -244,11 +246,11 @@ export default function OnhandPage() {
         <Space wrap>
           {canCreate && (
             <ImportExcelButton
-              templateUrl="/onhand/template"
-              importUrl="/onhand/import"
+              templateUrl={ENDPOINTS.onhand.template}
+              importUrl={ENDPOINTS.onhand.import}
               templateFileName="onhand_template.xlsx"
               onDone={() =>
-                void queryClient.invalidateQueries({ queryKey: ['onhand'] })
+                void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.onhand })
               }
             />
           )}

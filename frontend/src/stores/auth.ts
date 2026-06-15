@@ -1,18 +1,7 @@
 import { create } from 'zustand'
+import type { AuthUser, PermissionFlags } from '../types'
 
-export interface AuthUser {
-  id: number
-  name: string
-  email: string
-  isAdmin: boolean
-}
-
-export interface PermissionFlags {
-  canCreate: boolean
-  canRead: boolean
-  canUpdate: boolean
-  canDelete: boolean
-}
+export type { AuthUser, PermissionFlags }
 
 interface AuthState {
   accessToken: string | null

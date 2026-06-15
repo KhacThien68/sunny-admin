@@ -1,25 +1,11 @@
 import { apiClient } from './client'
+import { ENDPOINTS } from '../constants/endpoints'
+import type { OnhandItem, ComponentSearchItem, ComponentSearchResponse } from '../types'
 
-export interface OnhandItem {
-  id: number
-  componentCode: string
-  quantity: number
-  updatedAt: string
-  registered: boolean
-  description: string | null
-}
-
-export interface ComponentSearchItem {
-  code: string
-  description: string | null
-}
-
-export interface ComponentSearchResponse {
-  items: ComponentSearchItem[]
-}
+export type { OnhandItem, ComponentSearchItem, ComponentSearchResponse }
 
 export async function getOnhand(): Promise<OnhandItem[]> {
-  const res = await apiClient.get<OnhandItem[]>('/onhand')
+  const res = await apiClient.get<OnhandItem[]>(ENDPOINTS.onhand.base)
   return res.data
 }
 
@@ -27,19 +13,19 @@ export async function upsertOnhand(
   componentCode: string,
   quantity: number,
 ): Promise<OnhandItem> {
-  const res = await apiClient.put<OnhandItem>(`/onhand/${componentCode}`, { quantity })
+  const res = await apiClient.put<OnhandItem>(ENDPOINTS.onhand.byCode(componentCode), { quantity })
   return res.data
 }
 
 export async function deleteOnhand(id: number): Promise<void> {
-  await apiClient.delete(`/onhand/${id}`)
+  await apiClient.delete(ENDPOINTS.onhand.byId(id))
 }
 
 export async function searchComponents(
   search: string,
   pageSize = 30,
 ): Promise<ComponentSearchResponse> {
-  const res = await apiClient.get<ComponentSearchResponse>('/components', {
+  const res = await apiClient.get<ComponentSearchResponse>(ENDPOINTS.components.base, {
     params: { search, pageSize },
   })
   return res.data

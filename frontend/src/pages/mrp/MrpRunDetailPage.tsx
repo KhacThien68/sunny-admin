@@ -22,22 +22,12 @@ import {
   patchMrpLine,
   closeRound,
 } from '../../api/mrp'
-import type { MrpLine, MrpRound, MrpRunDetailResponse } from '../../api/mrp'
+import type { MrpLine, MrpRound, MrpRunDetailResponse } from '../../types'
+import { QUERY_KEYS } from '../../constants/queryKeys'
+import { MOB_LABELS, MOB_COLORS } from '../../constants/labels'
 import { getErrorMessage } from '../../utils/errorMessage'
 
 const { Title } = Typography
-
-const MOB_LABELS = {
-  KHONG: 'Sản xuất',
-  CO_THE: 'Có thể mua',
-  BAT_BUOC: 'Bắt buộc mua',
-} as const
-
-const MOB_COLORS = {
-  KHONG: undefined,
-  CO_THE: 'blue',
-  BAT_BUOC: 'red',
-} as const
 
 /** Format a number with Vietnamese locale, max 4 decimals */
 function fmtNum(n: number): string {
@@ -280,7 +270,7 @@ export default function MrpRunDetailPage() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['mrp-run', runId],
+    queryKey: QUERY_KEYS.mrpRun(runId),
     queryFn: () => getMrpRunDetail(runId),
     enabled: !isNaN(runId),
     retry: (failureCount, error) => {
@@ -302,7 +292,7 @@ export default function MrpRunDetailPage() {
   const closeRoundMutation = useMutation({
     mutationFn: () => closeRound(runId),
     onSuccess: (result) => {
-      queryClient.setQueryData<MrpRunDetailResponse>(['mrp-run', runId], result)
+      queryClient.setQueryData<MrpRunDetailResponse>(QUERY_KEYS.mrpRun(runId), result)
       if (result.run.status === 'DONE') {
         void message.success('Phiên MRP đã hoàn tất')
       } else {
@@ -316,7 +306,7 @@ export default function MrpRunDetailPage() {
   })
 
   function handleLineUpdated(roundNum: number, lineId: number, updatedLine: MrpLine) {
-    queryClient.setQueryData<MrpRunDetailResponse>(['mrp-run', runId], (old) => {
+    queryClient.setQueryData<MrpRunDetailResponse>(QUERY_KEYS.mrpRun(runId), (old) => {
       if (!old) return old
       return {
         ...old,

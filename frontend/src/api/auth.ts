@@ -1,11 +1,8 @@
 import axios from 'axios'
 import { apiClient } from './client'
-import { useAuth, type AuthUser, type PermissionFlags } from '../stores/auth'
-
-interface LoginResponse {
-  accessToken: string
-  user: AuthUser
-}
+import { useAuth, type PermissionFlags } from '../stores/auth'
+import { ENDPOINTS } from '../constants/endpoints'
+import type { LoginResponse } from '../types'
 
 interface PermissionEntry {
   screenKey: string
@@ -16,7 +13,7 @@ interface PermissionEntry {
 }
 
 async function fetchMyPermissions(): Promise<void> {
-  const res = await apiClient.get<PermissionEntry[]>('/permissions/me')
+  const res = await apiClient.get<PermissionEntry[]>(ENDPOINTS.permissions.me)
   const permsRecord: Record<string, PermissionFlags> = {}
   for (const entry of res.data) {
     permsRecord[entry.screenKey] = {
@@ -31,7 +28,7 @@ async function fetchMyPermissions(): Promise<void> {
 
 export async function login(email: string, password: string): Promise<void> {
   const res = await axios.post<LoginResponse>(
-    '/api/auth/login',
+    `/api${ENDPOINTS.auth.login}`,
     { email, password },
     { withCredentials: true },
   )
@@ -42,7 +39,7 @@ export async function login(email: string, password: string): Promise<void> {
 
 export async function logoutApi(): Promise<void> {
   try {
-    await apiClient.post('/auth/logout')
+    await apiClient.post(ENDPOINTS.auth.logout)
   } catch {
     // Ignore errors on logout
   }
@@ -52,7 +49,7 @@ export async function logoutApi(): Promise<void> {
 export async function bootstrapSession(): Promise<void> {
   try {
     const res = await axios.post<LoginResponse>(
-      '/api/auth/refresh',
+      `/api${ENDPOINTS.auth.refresh}`,
       {},
       { withCredentials: true },
     )

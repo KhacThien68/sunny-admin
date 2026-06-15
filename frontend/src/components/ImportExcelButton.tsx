@@ -12,20 +12,9 @@ import {
 import { DownloadOutlined, UploadOutlined } from '@ant-design/icons'
 import type { UploadFile } from 'antd'
 import { apiClient } from '../api/client'
+import { IMPORT_MODE, MULTIPART_HEADERS } from '../constants/http'
+import type { ImportResult } from '../types'
 import { getErrorMessage } from '../utils/errorMessage'
-
-interface ImportError {
-  row: number
-  column: string
-  message: string
-}
-
-interface ImportPreviewResponse {
-  valid: number
-  errors: ImportError[]
-  warnings?: string[]
-  committed?: boolean
-}
 
 interface ImportExcelButtonProps {
   templateUrl: string
@@ -50,7 +39,7 @@ export default function ImportExcelButton({
 }: ImportExcelButtonProps) {
   const { message } = App.useApp()
   const [modalOpen, setModalOpen] = useState(false)
-  const [preview, setPreview] = useState<ImportPreviewResponse | null>(null)
+  const [preview, setPreview] = useState<ImportResult | null>(null)
   const [committing, setCommitting] = useState(false)
   const fileRef = useRef<File | null>(null)
 
@@ -75,10 +64,13 @@ export default function ImportExcelButton({
     const formData = new FormData()
     formData.append('file', file)
     try {
-      const res = await apiClient.post<ImportPreviewResponse>(
-        `${importUrl}?mode=preview`,
+      const res = await apiClient.post<ImportResult>(
+        importUrl,
         formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } },
+        {
+          headers: MULTIPART_HEADERS,
+          params: { mode: IMPORT_MODE.PREVIEW },
+        },
       )
       setPreview(res.data)
       setModalOpen(true)
@@ -95,10 +87,13 @@ export default function ImportExcelButton({
     const formData = new FormData()
     formData.append('file', fileRef.current)
     try {
-      await apiClient.post<ImportPreviewResponse>(
-        `${importUrl}?mode=commit`,
+      await apiClient.post<ImportResult>(
+        importUrl,
         formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } },
+        {
+          headers: MULTIPART_HEADERS,
+          params: { mode: IMPORT_MODE.COMMIT },
+        },
       )
       void message.success(`Đã ghi ${preview.valid} dòng`)
       setModalOpen(false)

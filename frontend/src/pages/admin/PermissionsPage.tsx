@@ -12,13 +12,14 @@ import {
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { usePermission } from '../../hooks/usePermission'
 import { getUsers } from '../../api/users'
-import type { User } from '../../api/users'
+import type { User } from '../../types'
 import {
   getScreens,
   getUserPermissions,
   putUserPermissions,
 } from '../../api/permissions'
-import type { PermissionEntry } from '../../api/permissions'
+import type { PermissionEntry } from '../../types'
+import { QUERY_KEYS } from '../../constants/queryKeys'
 import { getErrorMessage } from '../../utils/errorMessage'
 
 const { Title, Text } = Typography
@@ -32,13 +33,13 @@ export default function PermissionsPage() {
 
   // Fetch all users for the Select
   const { data: users = [] } = useQuery({
-    queryKey: ['users'],
+    queryKey: QUERY_KEYS.users,
     queryFn: getUsers,
   })
 
   // Fetch screens list
   const { data: screens = [] } = useQuery({
-    queryKey: ['permissions', 'screens'],
+    queryKey: QUERY_KEYS.permissionsScreens,
     queryFn: getScreens,
   })
 
@@ -48,7 +49,7 @@ export default function PermissionsPage() {
     isLoading: permsLoading,
     refetch: refetchPerms,
   } = useQuery({
-    queryKey: ['permissions', selectedUserId],
+    queryKey: QUERY_KEYS.permissionsForUser(selectedUserId!),
     queryFn: () => getUserPermissions(selectedUserId!),
     enabled: selectedUserId !== undefined,
   })

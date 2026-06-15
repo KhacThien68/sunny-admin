@@ -1,75 +1,43 @@
 import { apiClient } from './client'
+import { ENDPOINTS } from '../constants/endpoints'
+import type {
+  OrderStatus,
+  OrderSummary,
+  OrderLine,
+  OrderDetail,
+  CreateOrderBody,
+  UpdateOrderBody,
+  AggregationLine,
+  AggregationResult,
+  LatestAggregationLine,
+  LatestAggregation,
+} from '../types'
 
-export type OrderStatus = 'DRAFT' | 'AGGREGATED'
-
-export interface OrderSummary {
-  id: number
-  code: string
-  customerGroup: string
-  note: string | null
-  status: OrderStatus
-  createdById: number
-  createdAt: string
-  lineCount: number
-}
-
-export interface OrderLine {
-  id: number
-  componentCode: string
-  quantity: number
-  registered: boolean
-  description: string | null
-}
-
-export interface OrderDetail extends OrderSummary {
-  lines: OrderLine[]
-}
-
-export interface CreateOrderBody {
-  customerGroup: string
-  note?: string
-  code?: string
-  lines: Array<{ componentCode: string; quantity: number }>
-}
-
-export type UpdateOrderBody = CreateOrderBody
-
-export interface AggregationLine {
-  componentCode: string
-  totalQty: number
-}
-
-export interface AggregationResult {
-  id: number
-  createdAt: string
-  lines: AggregationLine[]
-}
-
-export interface LatestAggregationLine {
-  componentCode: string
-  totalQty: number
-  registered: boolean
-  description: string | null
-}
-
-export interface LatestAggregation {
-  id: number
-  createdAt: string
-  lines: LatestAggregationLine[]
+export type {
+  OrderStatus,
+  OrderSummary,
+  OrderLine,
+  OrderDetail,
+  CreateOrderBody,
+  UpdateOrderBody,
+  AggregationLine,
+  AggregationResult,
+  LatestAggregationLine,
+  LatestAggregation,
 }
 
 export async function getOrders(): Promise<OrderSummary[]> {
-  const res = await apiClient.get<OrderSummary[]>('/orders')
+  const res = await apiClient.get<OrderSummary[]>(ENDPOINTS.orders.base)
   return res.data
 }
 
 export async function getOrder(id: number): Promise<OrderDetail> {
-  const res = await apiClient.get<OrderDetail>(`/orders/${id}`)
+  const res = await apiClient.get<OrderDetail>(ENDPOINTS.orders.byId(id))
   return res.data
 }
 
 export async function createOrder(body: CreateOrderBody): Promise<OrderDetail> {
-  const res = await apiClient.post<OrderDetail>('/orders', body)
+  const res = await apiClient.post<OrderDetail>(ENDPOINTS.orders.base, body)
   return res.data
 }
 
@@ -77,22 +45,22 @@ export async function updateOrder(
   id: number,
   body: UpdateOrderBody,
 ): Promise<OrderDetail> {
-  const res = await apiClient.patch<OrderDetail>(`/orders/${id}`, body)
+  const res = await apiClient.patch<OrderDetail>(ENDPOINTS.orders.byId(id), body)
   return res.data
 }
 
 export async function deleteOrder(id: number): Promise<void> {
-  await apiClient.delete(`/orders/${id}`)
+  await apiClient.delete(ENDPOINTS.orders.byId(id))
 }
 
 export async function aggregateOrders(): Promise<AggregationResult> {
-  const res = await apiClient.post<AggregationResult>('/orders/aggregate')
+  const res = await apiClient.post<AggregationResult>(ENDPOINTS.orders.aggregate)
   return res.data
 }
 
 export async function getLatestAggregation(): Promise<LatestAggregation | null> {
   try {
-    const res = await apiClient.get<LatestAggregation>('/orders/aggregations/latest')
+    const res = await apiClient.get<LatestAggregation>(ENDPOINTS.orders.aggregationsLatest)
     return res.data
   } catch (err: unknown) {
     const axiosErr = err as { response?: { status?: number } }

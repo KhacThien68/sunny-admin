@@ -2,7 +2,8 @@ import { Select, Spin } from 'antd'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { getOutputRuns } from '../../api/outputs'
-import type { OutputRunSummary } from '../../api/outputs'
+import type { OutputRunSummary } from '../../types'
+import { QUERY_KEYS } from '../../constants/queryKeys'
 
 interface RunSelectorProps {
   value?: number
@@ -11,7 +12,7 @@ interface RunSelectorProps {
 
 export default function RunSelector({ value, onChange }: RunSelectorProps) {
   const { data: runs = [], isLoading } = useQuery({
-    queryKey: ['output-runs'],
+    queryKey: QUERY_KEYS.outputRuns,
     queryFn: getOutputRuns,
   })
 

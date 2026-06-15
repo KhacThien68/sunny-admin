@@ -1,81 +1,44 @@
 import { apiClient } from './client'
-import type { Component } from './components'
+import { ENDPOINTS } from '../constants/endpoints'
+import type {
+  PurchasingTeamSummary,
+  PurchasingTeamDetail,
+  TeamMember,
+  TeamScope,
+  CreateTeamBody,
+  UpdateTeamBody,
+  AddMemberBody,
+  AddScopeBody,
+  AddScopeByClassification,
+  AddScopeByComponent,
+  Component,
+} from '../types'
 
-// ── List response types ──────────────────────────────────────────────────────
-
-export interface PurchasingTeamSummary {
-  id: number
-  name: string
-  description: string | null
-  memberCount: number
-  scopeCount: number
+export type {
+  PurchasingTeamSummary,
+  PurchasingTeamDetail,
+  TeamMember,
+  TeamScope,
+  CreateTeamBody,
+  UpdateTeamBody,
+  AddMemberBody,
+  AddScopeBody,
+  AddScopeByClassification,
+  AddScopeByComponent,
 }
-
-// ── Detail response types ────────────────────────────────────────────────────
-
-export interface TeamMember {
-  memberId: number
-  userId: number
-  name: string
-  email: string
-  team: string | null
-}
-
-export interface TeamScope {
-  scopeId: number
-  type: 'classification' | 'component'
-  value: string
-  componentDescription?: string | null
-}
-
-export interface PurchasingTeamDetail {
-  id: number
-  name: string
-  description: string | null
-  members: TeamMember[]
-  scopes: TeamScope[]
-}
-
-// ── Request body types ───────────────────────────────────────────────────────
-
-export interface CreateTeamBody {
-  name: string
-  description?: string
-}
-
-export interface UpdateTeamBody {
-  name?: string
-  description?: string
-}
-
-export interface AddMemberBody {
-  userId: number
-}
-
-export interface AddScopeByClassification {
-  classification: string
-}
-
-export interface AddScopeByComponent {
-  componentCode: string
-}
-
-export type AddScopeBody = AddScopeByClassification | AddScopeByComponent
-
-// ── API functions ────────────────────────────────────────────────────────────
 
 export async function getPurchasingTeams(): Promise<PurchasingTeamSummary[]> {
-  const res = await apiClient.get<PurchasingTeamSummary[]>('/purchasing-teams')
+  const res = await apiClient.get<PurchasingTeamSummary[]>(ENDPOINTS.purchasingTeams.base)
   return res.data
 }
 
 export async function getPurchasingTeam(id: number): Promise<PurchasingTeamDetail> {
-  const res = await apiClient.get<PurchasingTeamDetail>(`/purchasing-teams/${id}`)
+  const res = await apiClient.get<PurchasingTeamDetail>(ENDPOINTS.purchasingTeams.byId(id))
   return res.data
 }
 
 export async function createPurchasingTeam(body: CreateTeamBody): Promise<PurchasingTeamSummary> {
-  const res = await apiClient.post<PurchasingTeamSummary>('/purchasing-teams', body)
+  const res = await apiClient.post<PurchasingTeamSummary>(ENDPOINTS.purchasingTeams.base, body)
   return res.data
 }
 
@@ -83,31 +46,31 @@ export async function updatePurchasingTeam(
   id: number,
   body: UpdateTeamBody,
 ): Promise<PurchasingTeamSummary> {
-  const res = await apiClient.patch<PurchasingTeamSummary>(`/purchasing-teams/${id}`, body)
+  const res = await apiClient.patch<PurchasingTeamSummary>(ENDPOINTS.purchasingTeams.byId(id), body)
   return res.data
 }
 
 export async function deletePurchasingTeam(id: number): Promise<void> {
-  await apiClient.delete(`/purchasing-teams/${id}`)
+  await apiClient.delete(ENDPOINTS.purchasingTeams.byId(id))
 }
 
 export async function addTeamMember(id: number, body: AddMemberBody): Promise<void> {
-  await apiClient.post(`/purchasing-teams/${id}/members`, body)
+  await apiClient.post(ENDPOINTS.purchasingTeams.members(id), body)
 }
 
 export async function removeTeamMember(id: number, memberId: number): Promise<void> {
-  await apiClient.delete(`/purchasing-teams/${id}/members/${memberId}`)
+  await apiClient.delete(ENDPOINTS.purchasingTeams.memberById(id, memberId))
 }
 
 export async function addTeamScope(id: number, body: AddScopeBody): Promise<void> {
-  await apiClient.post(`/purchasing-teams/${id}/scopes`, body)
+  await apiClient.post(ENDPOINTS.purchasingTeams.scopes(id), body)
 }
 
 export async function removeTeamScope(id: number, scopeId: number): Promise<void> {
-  await apiClient.delete(`/purchasing-teams/${id}/scopes/${scopeId}`)
+  await apiClient.delete(ENDPOINTS.purchasingTeams.scopeById(id, scopeId))
 }
 
 export async function getUnassignedComponents(): Promise<Component[]> {
-  const res = await apiClient.get<Component[]>('/purchasing-teams/unassigned-components')
+  const res = await apiClient.get<Component[]>(ENDPOINTS.purchasingTeams.unassignedComponents)
   return res.data
 }
